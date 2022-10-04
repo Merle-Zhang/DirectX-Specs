@@ -1,0 +1,1340 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<HTML><head><TITLE>Direct3D 11.3 Functional Specification</TITLE>
+<style> @media screen { H1 { text-transform: capitalize }
+        H2 { text-transform: capitalize }
+        H4 { font-style: oblique; font-weight: bolder; font-size: medium }
+        H5 { font-style: oblique; font-size: medium }
+        H6 { text-transform: uppercase; font-size: small }
+        BODY { font-family: "Arial"; margin-left: 3%; margin-right: 3%; margin-bottom: 3% }
+        DIV.tda { font-size: small; background: #cccccc }
+        DIV.legal_notice { border: solid thin; font-size: small }
+        DIV.footer { text-align: center; background: #cccccc }
+        DIV.boxed { font-size: medium }
+        .normal_center {text-align: center}}
+        @media print { H1 { text-transform: capitalize }
+        H2 { text-transform: capitalize }
+        H4 { font-style: oblique; font-weight: bolder; font-size: medium }
+        H5 { font-style: oblique; font-size: medium }
+        H6 { text-transform: uppercase; font-size: small }
+        BODY { font-family: "Arial"; margin-left: 3%; margin-right: 3%; margin-bottom: 3% }
+        DIV.tda { font-size: small; background: #cccccc }
+        DIV.legal_notice { border: solid thin; font-size: small }
+        DIV.footer { text-align: center; background: #cccccc }
+        DIV.boxed { border: solid thin; font-size: medium }
+        .normal_center {text-align: center}}
+        .STRIKETHROUGH_ITALIC {
+            font-style: italic;
+            text-decoration: line-through;
+        }
+        </style>
+</head>
+<body lang="EN-US" vLink=#333399 link=#333399>
+<A id="Direct3D 11.3 Functional
+Specification"></A>
+<H1>Direct3D <a href="#D3D11_MAJOR_VERSION" title="D3D11_MAJOR_VERSION"><font color=black style="text-decoration:none">11</font></a>.<a href="#D3D11_MINOR_VERSION" title="D3D11_MINOR_VERSION"><font color=black style="text-decoration:none">3</font></a> Functional
+Specification</H1>
+<p>Version <a href="#D3D11_SPEC_VERSION" title="D3D11_SPEC_VERSION"><font color=black style="text-decoration:none">1.16</font></a> - <a href="#D3D11_SPEC_DATE_MONTH" title="D3D11_SPEC_DATE_MONTH"><font color=black style="text-decoration:none">4</font></a>/<a href="#D3D11_SPEC_DATE_DAY" title="D3D11_SPEC_DATE_DAY"><font color=black style="text-decoration:none">23</font></a>/<a href="#D3D11_SPEC_DATE_YEAR" title="D3D11_SPEC_DATE_YEAR"><font color=black style="text-decoration:none">2015</font></a></p>
+<hr><!-- ********************************************************************** -->
+<a id="ShortTableOfContents"></a>
+<P><A href="#Table of Contents">Full Table of Contents</A> at end of document.</P>
+
+<A id="Condensed Table of Contents"></A>
+<H1>Condensed Table of Contents</H1>
+<LI><A href="#1 Introduction">1 Introduction</A></LI>
+<LI><A href="#2 Rendering Pipeline Overview">2 Rendering Pipeline Overview</A></LI>
+<LI><A href="#3 Basics">3 Basics</A></LI>
+<LI><A href="#4 Rendering Pipeline">4 Rendering Pipeline</A></LI>
+<LI><A href="#5 Resources">5 Resources</A></LI>
+<LI><A href="#6 Multicore">6 Multicore</A></LI>
+<LI><A href="#7 Common Shader Internals">7 Common Shader Internals</A></LI>
+<LI><A href="#8 Input Assembler Stage">8 Input Assembler Stage</A></LI>
+<LI><A href="#9 Vertex Shader Stage">9 Vertex Shader Stage</A></LI>
+<LI><A href="#10 Hull Shader Stage">10 Hull Shader Stage</A></LI>
+<LI><A href="#11 Tessellator">11 Tessellator</A></LI>
+<LI><A href="#12 Domain Shader Stage">12 Domain Shader Stage</A></LI>
+<LI><A href="#13 Geometry Shader Stage">13 Geometry Shader Stage</A></LI>
+<LI><A href="#14 Stream Output Stage">14 Stream Output Stage</A></LI>
+<LI><A href="#15 Rasterizer Stage">15 Rasterizer Stage</A></LI>
+<LI><A href="#16 Pixel Shader Stage">16 Pixel Shader Stage</A></LI>
+<LI><A href="#17 Output Merger Stage">17 Output Merger Stage</A></LI>
+<LI><A href="#18 Compute Shader Stage">18 Compute Shader Stage</A></LI>
+<LI><A href="#19 Stage-Memory I/O">19 Stage-Memory I/O</A></LI>
+<LI><A href="#20 Asynchronous Notification">20 Asynchronous Notification</A></LI>
+<LI><A href="#21 System Limits on Various Resources">21 System Limits on Various Resources</A></LI>
+<LI><A href="#22 Shader Instruction Reference">22 Shader Instruction Reference</A></LI>
+<LI><A href="#23 System Generated Values Reference">23 System Generated Values Reference</A></LI>
+<LI><A href="#24 System Interpreted Values Reference">24 System Interpreted Values Reference</A></LI>
+<LI><A href="#25 Appendix">25 Appendix</A></LI>
+<LI><A href="#26 Constant Listing (Auto-generated)">26 Constant Listing (Auto-generated)</A></LI>
+<br><br>
+
+<hr><!-- ********************************************************************** -->
+<h1 id="Introduction"></h1><A id="1 Introduction"></A>
+<H1>1 Introduction</H1>
+<hr><p><a id="Chapter1Contents"><b>Chapter Contents</b></a><br><br>(<a href="#ShortTableOfContents">back to top</a>)<br><br>
+<A href="#1.1 Purpose">1.1 Purpose</A><br>
+<A href="#1.2 Audience">1.2 Audience</A><br>
+<A href="#1.3 Topics Covered">1.3 Topics Covered</A><br>
+<A href="#1.4 Topics Not Covered">1.4 Topics Not Covered</A><br>
+<A href="#1.5 Not Optimized for Smooth Reading">1.5 Not Optimized for Smooth Reading</A><br>
+<A href="#1.6 How D3D11.3 Fits into this Unified Spec">1.6 How D3D11.3 Fits into this Unified Spec</A><br>
+</DIR>
+<br></p><hr>
+
+<A id="1.1 Purpose"></A>
+<H2>1.1 Purpose</H2>
+<p>This document describes hardware requirements for Direct3D <a href="#D3D11_MAJOR_VERSION" title="D3D11_MAJOR_VERSION"><font color=black style="text-decoration:none">11</font></a>.<a href="#D3D11_MINOR_VERSION" title="D3D11_MINOR_VERSION"><font color=black style="text-decoration:none">3</font></a> (D3D11.3).
+</p>
+<A id="1.2 Audience"></A>
+<H2>1.2 Audience</H2>
+<p>It is assumed that the reader is familiar with real-time graphics, modern Graphics Processing
+Unit (GPU) design issues and the general architecture of Microsoft Windows Operating Systems, as well
+their planned release roadmap.</p>
+
+<p>The target audience for this spec are the implementers, testers and documenters of
+hardware or software components that would be considered part of a D3D11.3-compliant system.
+In addition, software developers who are vested in the details about medium-term GPU hardware
+direction will find interesting information.</p>
+
+<A id="1.3 Topics Covered"></A>
+<H2>1.3 Topics Covered</H2>
+<p>Topics covered in this spec center on definition of the hardware architecture being
+targeted by the D3D11.1 Graphics Pipeline, in a form that attempts to be agnostic to any
+single vendor's hardware implementation.  Included will be some references to how the Graphics Pipeline is
+controlled through a Device Driver Interface (DDI), and occasionally depictions of API usage as needed to illustrate points.</p>
+<DIV class=boxed style="background-color: lightblue">
+<p>Occasionally, boxed text such as this appears in the spec to indicate
+justification for decisions, explain history about a feature, provide clarifications or general remarks about a
+topic being described, or to flag an unresolved issues.  These shaded boxes DO NOT provide
+a complete listing of all such trivia, however.  Note that on each revision of this spec, all
+changes made for that revision are summarized in a separate document typically distributed with the spec.</p>
+</DIV>
+<A id="1.4 Topics Not Covered"></A>
+<H2>1.4 Topics Not Covered</H2>
+<p>The exact relationship and interactions between topics covered in the Graphics Pipeline with other Operating System
+components is not covered.</p>
+<p>GPU resource management, GPU process scheduling, and low-level Operating System driver/kernel architecture are not covered.</p>
+<p>High-level GPU programming concepts (such as high level shading languages) are not covered.</p>
+<p>Little to no theory or derivation of graphics concepts, techniques or history is provided.  Equally rare for this spec
+is any attempt to characterize what sorts of things applications software developers might do using the functionality provided
+by D3D11.3.  There are exceptions, but do not expect to gain much more than an understanding of the "facts" about D3D11.3 from this spec.</p>
+
+<A id="1.5 Not Optimized for Smooth Reading"></A>
+<H2>1.5 Not Optimized for Smooth Reading</H2>
+<p>Beware, there is little flow to the content in this spec, although there are plenty of links from place to place.</p>
+
+<DIV class=boxed style="background-color: yellow">
+<hr><!-- ********************************************************************** -->
+<h2 id="D3D11SpecletMappings"></h2><A id="1.6 How D3D11.3 Fits into this Unified Spec"></A>
+<H2>1.6 How D3D11.3 Fits into this Unified Spec</H2>
+
+<p>This document is the product of starting with the full D3D11.2 functional spec and adding in relevant WindowsNext D3D11.3 features.</p>
+
+<p>Each Chapter in this spec begins with a summary of the changes from
+D3D10 to D3D10.1 to D3D11 to D3D11.1 to D3D11.2 to D3D11.3 for that Chapter.  <b>A table of links to all of the Chapter delta summaries
+can be found <a href="#ChangesLinks">here</a><a style="color: Gray"><small><sup>(25.2)</sup></small></a>.</b></p>
+
+<p>To find D3D11.3 changes specifically (which includes changes for optional new features and clarifications/corrections that
+    affect all feature levels, look for "[D3D11.3]" in the chapter changelists (or simply search the doc for it).</p>
+
+<br>
+
+</DIV>
+
+<hr><!-- ********************************************************************** -->
+<h1 id="Rendering Pipeline Overview"></h1><A id="2 Rendering Pipeline Overview"></A>
+<H1>2 Rendering Pipeline Overview</H1>
+<hr><p><a id="Chapter2Contents"><b>Chapter Contents</b></a><br><br>(<a href="#ShortTableOfContents">back to top</a>)<br><br>
+<A href="#2.1 Input Assembler (IA) Overview">2.1 Input Assembler (IA) Overview</A><br>
+<A href="#2.2 Vertex Shader (VS) Overview">2.2 Vertex Shader (VS) Overview</A><br>
+<A href="#2.3 Hull Shader (HS) Overview">2.3 Hull Shader (HS) Overview</A><br>
+<A href="#2.4 Tessellator (TS) Overview">2.4 Tessellator (TS) Overview</A><br>
+<A href="#2.5 Domain Shader (DS) Overview">2.5 Domain Shader (DS) Overview</A><br>
+<A href="#2.6 Geometry Shader (GS) Overview">2.6 Geometry Shader (GS) Overview</A><br>
+<A href="#2.7 Stream Output (SO) Overview">2.7 Stream Output (SO) Overview</A><br>
+<A href="#2.8 Rasterizer Overview">2.8 Rasterizer Overview</A><br>
+<A href="#2.9 Pixel Shader (PS) Overview">2.9 Pixel Shader (PS) Overview</A><br>
+<A href="#2.10 Output Merger (OM) Overview">2.10 Output Merger (OM) Overview</A><br>
+<A href="#2.11 Compute Shader (CS) Overview">2.11 Compute Shader (CS) Overview</A><br>
+</DIR>
+<br></p><hr>
+
+<DIV class=boxed style="background-color: yellow">
+<p id="Rendering Pipeline Overview Changes"><b>Summary of Changes in this Chapter from D3D10 to D3D11.3</b></p>
+<p><a href="#ChangesLinks">Back to all D3D10 to D3D11.3 changes.</a><a style="color: Gray"><small><sup>(25.2)</sup></small></a></p>
+<ul>
+<li>[D3D11] Updated the pipeline stage intro blurbs to include mention of new D3D11 features: Hull Shader, Tessellator, Domain Shader,
+as well as the Compute Shader, which is depicted separately.</li>
+</ul>
+</DIV>
+<hr><!-- ********************************************************************** -->
+<P>D3D11.1 hardware, like previous generations, can be designed with shared programmable cores.
+A farm of Shader cores exist on the GPU, able to be scheduled across the functional blocks comprising the D3D11.1
+Pipeline, depicted below.</P>
+<P><IMG id="CorePipe1" alt="" src="images/d3d11/D3D11_3_CorePipe1.png" ></P>
+<P><IMG id="CorePipe2" alt="" src="images/d3d11/D3D11_3_CorePipe2.png" ></P>
+
+<hr><!-- ********************************************************************** -->
+<h2 id="IAIntro"></h2><A id="2.1 Input Assembler (IA) Overview"></A>
+<H2>2.1 Input Assembler (IA) Overview</H2>
+<p>The Input Assembler (IA) introduces triangles, lines, points or Control Points (for Patches) into the
+graphics Pipeline, by pulling source geometry data out of 1D <a href="#Buffer">Buffers</a><a style="color: Gray"><small><sup>(5.3.4)</sup></small></a>.</p>
+<p>Vertex data can come from multiple Buffers, accessed in an "Array-of-Structures" fashion from each Buffer.
+The Buffers are each bound to an individual input slot and given a structure stride.  The layout of data across
+all the Buffers is specified by an Input Declaration, in which each entry defines an "Element" with: an input slot,
+a structure offset, a data type, and a target register (for the first active Shader in the Pipeline).</p>
+<p>A given sequence of vertices is constructed out of data fetched from Buffers, in a traversal directed by a combination
+of fixed-function state and various Draw*() API/DDI calls.  Various primitive topologies are available to make
+the sequence of vertex data represent a sequence of primitives.  Example topologies are: point-list,
+line-list, triangle-list, triangle-strip, 8 control-point patch-list.</p>
+<p>Vertex data can be produced in one of two ways.  The first is "Non-Indexed" rendering, which is the sequential traversal of
+Buffer(s) containing vertex data, originating at a start offset at each Buffer binding.  The second method for producing vertex
+data is "Indexed" rendering, which is sequential traversal of a single Buffer containing scalar integer indices, originating at a
+start offset into the Buffer.  Each index indicates where to fetch data out of Buffer(s) containing vertex data.  The index values
+are independent of the characteristics of the Buffers they are referring to; Buffers are described by a declaration as mentioned earlier.
+So the task accomplished by "Non-Indexed" and "Indexed" rendering, each in their own way, is producing addresses from which to fetch
+vertex data in memory, and subsequently assemble the results into vertices and primitives.</p>
+<p>Instanced geometry rendering is enabled by allowing the sequential traversal, in either Non-indexed or Indexed rendering, to
+loop over a range within each Vertex Buffer (Non-Indexed case) or Index Buffer (Indexed case).
+Buffer-bindings can be identified "Instance Data" or "Vertex Data", indicating how to use the bound Buffer while performing instanced rendering.
+The address generated by "Non-Indexed" or "Indexed" rendering is used to fetch "Vertex Data", accounting also for looping when doing Instanced rendering.
+"Instance Data", on the other hand, is always sequentially traversed starting from a per-Buffer offset, at a frequency equal to one step
+per instance (e.g. one step forward after the number of vertices in an instance are traversed).  The step rate for "Instance Data" can also
+be chosen to be a subharmonic of the instance frequency (i.e. one step forward every other instance, every third instance etc.).</p>
+<p>Another use of the Input Assembler is that it can read Buffers that were written to from the <a href="#StreamOutputIntro">Stream Output</a><a style="color: Gray"><small><sup>(2.7)</sup></small></a>
+stage. Such a scenario necessitates a particular type of Draw, <a href="#DrawAuto">DrawAuto</a><a style="color: Gray"><small><sup>(8.9)</sup></small></a>. DrawAuto enables the Input Assembler to know how much data was dynamically
+written to a Stream Output Buffer without CPU involvement.</p>
+<p>In addition to producing vertex data from Buffers, the IA can auto-generate scalar counter values such as: <a href="#VertexID">VertexID</a><a style="color: Gray"><small><sup>(8.16)</sup></small></a>, <a href="#PrimitiveID">PrimitiveID</a><a style="color: Gray"><small><sup>(8.17)</sup></small></a> and <a href="#InstanceID">InstanceID</a><a style="color: Gray"><small><sup>(8.18)</sup></small></a>,
+for input to shader stages in the graphics pipeline.</p>
+<p>In "Indexed" rendering of strip topologies, such as triangle strips, a mechanism is provided for drawing multiple strips with a
+single Draw*() call (i.e. 'cut'ting strips).</p>
+<P>Specific operational details of the IA are provided <a href="#InputAssembler">here</a><a style="color: Gray"><small><sup>(8)</sup></small></a>.</P>
+<hr><!-- ********************************************************************** -->
+<A id="2.2 Vertex Shader (VS) Overview"></A>
+<H2>2.2 Vertex Shader (VS) Overview</H2>
+<P>The Vertex Shader stage processes vertices, performing operations such as
+transformations, skinning, and lighting.  Vertex Shaders
+always operate on a single input vertex and produce a single output
+vertex.  This stage must always be active.</P>
+<P>Specific operational details of Vertex Shaders are provided <a href="#VertexShader">here</a><a style="color: Gray"><small><sup>(9)</sup></small></a>.</P>
+<hr><!-- ********************************************************************** -->
+<A id="2.3 Hull Shader (HS) Overview"></A>
+<H2>2.3 Hull Shader (HS) Overview</H2>
+<P>The Hull Shader operates once per Patch (can only be used with Patces from the IA).  It can
+transform input Control Points that make up a Patch into Output Control Points, and it can perform other setup for the
+fixed-function Tessellator stage (outputting TessFactors, which are numbers that indicate how much to tessellate).</P>
+<P>Specific operational details of the Hull Shader are provided <a href="#HullShader">here</a><a style="color: Gray"><small><sup>(10)</sup></small></a>.</P>
+<hr><!-- ********************************************************************** -->
+<A id="2.4 Tessellator (TS) Overview"></A>
+<H2>2.4 Tessellator (TS) Overview</H2>
+<P>The Tessellator is a fixed function unit whose operation is defined by declarations in the Hull Shader.  It operates once
+per Patch output by the Hull Shader.  The Hull shader outputs TessFactors which are numbers that tell the Tessellator how much
+to tessellate (generate geometry and connectivity) over the domain of the Patch.</P>
+<P>Specific operational details of the Tessellator provided <a href="#Tessellator">here</a><a style="color: Gray"><small><sup>(11)</sup></small></a>.</P>
+<hr><!-- ********************************************************************** -->
+<A id="2.5 Domain Shader (DS) Overview"></A>
+<H2>2.5 Domain Shader (DS) Overview</H2>
+<P>The Domain Shader is invoked once per vertex generated by the Tessellator.  Each invocation is identified by its coordinate on
+a generic domain, and the role of the Domain Shader is to turn that coordinate into something tangible (such as a point in 3D space) for
+use downstream.  Each Domain Shader invocation for a Patch also sees shared input of all the Hull Shader output (such as output Control Points).</P>
+<P>Specific operational details of the Domain Shader are provided <a href="#DomainShader">here</a><a style="color: Gray"><small><sup>(12)</sup></small></a>.</P>
+<hr><!-- ********************************************************************** -->
+<A id="2.6 Geometry Shader (GS) Overview"></A>
+<H2>2.6 Geometry Shader (GS) Overview</H2>
+<P>The Geometry Shader runs application-specified Shader code with vertices as input and
+the ability to generate vertices on output.  The Geometry Shader's inputs are the vertices for a full primitive (two vertices for lines, three vertices for triangles, a single vertex for point,
+or all Control Points for a Patch if it reaches the GS with Tessellation disabled).  Some types of primitives can also include the vertices of edge-adjacent
+primitive (an additional two vertices for a line, an additional three for a
+triangle).</P>
+<P>Another input is a PrimitiveID auto-generated by the IA.  This allows per-face data
+to be fetched or computed if desired. </P>
+
+<P>The Geometry Shader stage is capable of outputting
+multiple vertices forming a single selected topology  (GS output topologies available are:
+tristrip, linestrip, pointlist).  The number of primitives emitted can vary freely
+within any invocation of the Geometry Shader, though the maximum number of vertices
+that could be emitted must be declared statically.  Strip lengths emitted from a GS invocation can
+be arbitrary (there is a <a href="#inst_CUT">'cut'</a><a style="color: Gray"><small><sup>(22.8.1)</sup></small></a> command).</P>
+<P>Output may be fed to rasterizer and/or out to vertex
+Buffers in memory.  Output fed to memory is expanded to individual
+point/line/triangle lists (the same way they would get passed to the rasterizer).</P>
+<DIV class=boxed style="background-color: lightblue">
+<P>Algorithms that can be implemented in the Geometry
+Shader include:</P>
+<UL>
+  <LI>Point Sprite Tessellation: Shader takes in a single
+  vertex and generates four vertices (two output triangles) representing
+  the four corners of a quad with arbitrary texcoords, normals, etc. </li>
+  <LI>Wide Line Tessellation: Shader receives two line
+  vertices (LV0,LV1) and generates four vertices for a quad representing a
+  widened line.  Additionally a Geometry Shader can utilize the adjacent
+  line vertices (AV0,AV1) to perform mitering on line endpoints. </li>
+  <LI>Fur/Fin Generation </li>
+  <LI>Shadow Volume Generation: Adjacency information used
+  to decide whether to extrude. </li>
+  <LI>Single Pass Rendering to Multiple TextureCube Faces:
+  Primitive projected and emitted to Pixel Shader 6 times, each primitive
+  accompanied by RenderTarget array index which chooses a cube face.</li>
+  <LI>Set up barycentric coordinates as primitive data so that Pixel Shader can perform custom attribute interpolation.</LI>
+  <LI>What about a pathological case: say the application wants
+  to generate some geometry, then n-patch that, and then extrude shadow volumes
+  out of that.  For such cases, multi-pass is the solution, via ability to
+  output vertex/primitive data to a stream and circulate it back.</LI></UL>
+</DIV>
+
+<P>Specific operational details of the Geometry Shader are provided <a href="#GeometryShader">here</a><a style="color: Gray"><small><sup>(13)</sup></small></a>.</P>
+<hr><!-- ********************************************************************** -->
+<h2 id="StreamOutputIntro"></h2><A id="2.7 Stream Output (SO) Overview"></A>
+<H2>2.7 Stream Output (SO) Overview</H2>
+<p>Vertices may be streamed out to memory just before arriving at the Rasterizer.  This is like a
+"tap" in the Pipeline, which can be turned on even as data continues to flow down to the Rasterizer.
+Data sent out via Stream Output is concatenated to Buffer(s).  These Buffers may on subsequent
+passes be recirculated as Pipeline inputs.</p>
+<p>One constraint about Stream Output is that it is tied to the Geometry Shader, in that both
+must be created together (though either can be "NULL"/"off").  The particular memory Buffer(s)
+being Streamed out are not tied to this GS/SO pair though.  Only the description of which parts of vertex
+data to feed to Stream Output are tied to the GS.</p>
+<DIV class=boxed style="background-color: lightblue">
+<P>One use for Stream Output is for saving ordered Pipeline data that will be reused.  For example
+a batch of vertices might be "skinned" by passing the vertices into the Pipeline as if they are independent
+points (just to visit all of them once), applying "skinning" operations on each vertex, and streaming out
+the results to memory.  The saved out "skinned" vertices are now available for use in subsequent passes as input.</P>
+</DIV>
+<p>Since the amount of output written through Stream Output can be unpredictably dynamic, a special type of Draw command,
+<a href="#DrawAuto">DrawAuto</a><a style="color: Gray"><small><sup>(8.9)</sup></small></a>, is necessary. DrawAuto enables the Input Assembler to know how much data was dynamically
+written to a Stream Output Buffer without CPU involvement. In addition,
+Queries are necessary to mitigate <a href="#SO_OVERFLOW_PREDICATE">Stream Output overflow</a><a style="color: Gray"><small><sup>(20.4.10)</sup></small></a>,
+as well as retrieve <a href="#SO_STATISTICS">how much data was written</a><a style="color: Gray"><small><sup>(20.4.9)</sup></small></a>
+to the Stream Output Buffers.</p>
+<P>Specific operational details of the Stream Output are provided <a href="#StreamOutput">here</a><a style="color: Gray"><small><sup>(14)</sup></small></a>.</P>
+<hr><!-- ********************************************************************** -->
+<h2 id="RasterizerIntro"></h2><A id="2.8 Rasterizer Overview"></A>
+<H2>2.8 Rasterizer Overview</H2>
+<p>The rasterizer is responsible for clipping, primitive setup, and determining
+how to invoke Pixel Shaders.  D3D<a href="#D3D11_MAJOR_VERSION" title="D3D11_MAJOR_VERSION"><font color=black style="text-decoration:none">11</font></a>.<a href="#D3D11_MINOR_VERSION" title="D3D11_MINOR_VERSION"><font color=black style="text-decoration:none">3</font></a> does not view this as a "stage" in the Pipeline,
+but rather an interface between Pipeline stages which happens to perform a significant
+set of fixed function operations, many of which can be adjusted by software developers.</p>
+<p>The rasterizer always assumes input positions are provided in clip-space, performs clipping, perspective
+divide and applies viewport scale/offset.</p>
+<P>Specific operational details of the Rasterizer are provided <a href="#Rasterizer">here</a><a style="color: Gray"><small><sup>(15)</sup></small></a>.</P>
+<hr><!-- ********************************************************************** -->
+<h2 id="PSIntro"></h2><A id="2.9 Pixel Shader (PS) Overview"></A>
+<H2>2.9 Pixel Shader (PS) Overview</H2>
+<P>Input data available to the Pixel Shader includes vertex attributes that can be chosen, on
+a per-Element basis, to be interpolated with or without perspective correction,
+or be treated as constant per-primitive.</P><P>The Pixel Shader can also be chosen to be invoked either once per pixel or once per covered sample within
+the pixel.</p>
+<p>Outputs are one or more 4-vectors of output data for the current pixel or sample, or no color (if pixel is discarded).</p>
+<p>The Pixel Shader has some other inputs and outputs available as well, similar to the kind of inputs and outputs the Compute Shader can use,
+allowing, for instance, the ability to write to scattered locations.</p>
+<P>Specific operational details of Pixel Shaders are provided <a href="#PixelShader">here</a><a style="color: Gray"><small><sup>(16)</sup></small></a>.</P>
+<hr><!-- ********************************************************************** -->
+<h2 id="OutputMergerIntro"></h2><A id="2.10 Output Merger (OM) Overview"></A>
+<H2>2.10 Output Merger (OM) Overview</H2>
+<P>The final step in the logical Pipeline is visibility determination, through stencil or depth, and writing or blending of
+output(s) to RenderTarget(s), which may be one of many <a href="#Resources">Resource Types</a><a style="color: Gray"><small><sup>(5)</sup></small></a>.</P>
+These operations, as well as the binding of output resources (RenderTargets), are defined at the Output Merger.
+<P>Specific operational details of the Output Merger are provided <a href="#OutputMerger">here</a><a style="color: Gray"><small><sup>(17)</sup></small></a>.</P>
+<hr><!-- ********************************************************************** -->
+<h2 id="CSIntro"></h2><A id="2.11 Compute Shader (CS) Overview"></A>
+<H2>2.11 Compute Shader (CS) Overview</H2>
+<P>The Compute Shader allows the GPU to be viewed as a generic grid of data-parallel processors, without
+any graphics baggage from the graphics pipeline.  The Compute Shader has explicit access to fast shared memory to
+facilitate communication between groups of shader invocations, and the ability to perform scattered reads and
+writes to memory.  The availablility of atomic operations enables unique access to shared memory addresses.
+The Compute Shader is not part of the Graphics Pipeline (all the previously discussed shader stages).
+The Compute Shader exists on its own, albeit on the same device as all the other Shader Stages.  To
+invoke this shader, Dispatch*() APIs are called instead of Draw*().</P>
+<P>Specific operational details of Compute Shaders are provided <a href="#ComputeShader">here</a><a style="color: Gray"><small><sup>(18)</sup></small></a>.</P>
+
+<hr><!-- ********************************************************************** -->
+<h1 id="InputAssembler"></h1><A id="8 Input Assembler Stage"></A>
+<H1>8 Input Assembler Stage</H1>
+<hr><p><a id="Chapter8Contents"><b>Chapter Contents</b></a><br><br>(<a href="#ShortTableOfContents">back to top</a>)<br><br>
+<A href="#8.1 IA State">8.1 IA State</A><br>
+<A href="#8.2 Drawing Commands">8.2 Drawing Commands</A><br>
+<A href="#8.3 Draw()">8.3 Draw()</A><br>
+<A href="#8.4 DrawInstanced()">8.4 DrawInstanced()</A><br>
+<A href="#8.5 DrawIndexed()">8.5 DrawIndexed()</A><br>
+<A href="#8.6 DrawIndexedInstanced()">8.6 DrawIndexedInstanced()</A><br>
+<A href="#8.7 DrawInstancedIndirect()">8.7 DrawInstancedIndirect()</A><br>
+<A href="#8.8 DrawIndexedInstancedIndirect()">8.8 DrawIndexedInstancedIndirect()</A><br>
+<A href="#8.9 DrawAuto()">8.9 DrawAuto()</A><br>
+<A href="#8.10 Primitive Topologies">8.10 Primitive Topologies</A><br>
+<A href="#8.11 Patch Topologies">8.11 Patch Topologies</A><br>
+<A href="#8.12 Generating Multiple Strips">8.12 Generating Multiple Strips</A><br>
+<A href="#8.13 Partially Completed Primitives">8.13 Partially Completed Primitives</A><br>
+<A href="#8.14 Leading Vertex">8.14 Leading Vertex</A><br>
+<A href="#8.15 Adjacency">8.15 Adjacency</A><br>
+<A href="#8.16 VertexID">8.16 VertexID</A><br>
+<A href="#8.17 PrimitiveID">8.17 PrimitiveID</A><br>
+<A href="#8.18 InstanceID">8.18 InstanceID</A><br>
+<A href="#8.19 Misc. IA Issues">8.19 Misc. IA Issues</A><br>
+<A href="#8.20 Input Assembler Data Conversion During Fetching">8.20 Input Assembler Data Conversion During Fetching</A><br>
+<A href="#8.21 IA Example">8.21 IA Example</A><br>
+</DIR>
+<br></p><hr>
+
+<DIV class=boxed style="background-color: yellow">
+<p id="Input Assembler Changes"><b>Summary of Changes in this Chapter from D3D10 to D3D11.3</b></p>
+<p><a href="#ChangesLinks">Back to all D3D10 to D3D11.3 changes.</a><a style="color: Gray"><small><sup>(25.2)</sup></small></a></p>
+<ul>
+<li>[D3D11] <a href="#PrimitiveTopologyEnum">D3D11_PRIMITIVE_TOPOLOGY</a><a style="color: Gray"><small><sup>(8.1.2)</sup></small></a> has 32 new entries for 1-<a href="#D3D11_IA_PATCH_MAX_CONTROL_POINT_COUNT" title="D3D11_IA_PATCH_MAX_CONTROL_POINT_COUNT"><font color=black style="text-decoration:none">32</font></a> Control Point Patchlist.</li>
+<li>[D3D11] Added a <a href="#PatchTopologies">Patch Topologies</a><a style="color: Gray"><small><sup>(8.11)</sup></small></a> section discussing about 1-<a href="#D3D11_IA_PATCH_MAX_CONTROL_POINT_COUNT" title="D3D11_IA_PATCH_MAX_CONTROL_POINT_COUNT"><font color=black style="text-decoration:none">32</font></a> Control Point Patches.</li>
+<li>[D3D11] <a href="#DrawAuto">DrawAuto</a><a style="color: Gray"><small><sup>(8.9)</sup></small></a> can now accept buffers above slot zero, although the one at slot zero is the one that determines how much to draw.</li>
+<li>[D3D11] Under the <a href="#Adjacency">Adjacency</a><a style="color: Gray"><small><sup>(8.15)</sup></small></a> section, noted that Tessellation doesn't understand or generate adjacency information; it operates one independent patch at a time, and outputs independent primitives.</li>
+<li>[D3D11] <a href="#DrawingCommands">Drawing Commands</a><a style="color: Gray"><small><sup>(8.2)</sup></small></a> below, two new methods have been added: <a href="#DrawInstancedIndirectAPI">DrawInstancedIndirect()</a><a style="color: Gray"><small><sup>(8.7)</sup></small></a> and <a href="#DrawIndexedInstancedIndirectAPI">DrawIndexedInstancedIndirect()</a><a style="color: Gray"><small><sup>(8.8)</sup></small></a></li>
+</ul>
+
+</DIV>
+<p>An overview of the IA is at the <a href="#IAIntro">beginning</a><a style="color: Gray"><small><sup>(2.1)</sup></small></a> of the document.  This section
+provides implementation details more like they are viewed from the DDI perspective (exact parameter names may not match).
+The API view is different, in that instead of hardcoding shader register numbers in the state declaration, names are used, and
+when creating Input Assembler State objects, the runtime figures out which registers the names correspond based
+on a shader input signature definition.</p>
+<p>An illustrated example of the IA being used is at the <a href="#IAExample">end</a><a style="color: Gray"><small><sup>(8.21)</sup></small></a> of this section.</p>
+
+<hr><!-- ********************************************************************** -->
+<A id="8.1 IA State"></A>
+<H2>8.1 IA State</H2>
+<hr><p><b>Section Contents</b><br><br>(<a href="#Chapter8Contents">back to chapter</a>)<br><br>
+<A href="#8.1.1 Overview">8.1.1 Overview</A><br>
+<A href="#8.1.2 Primitive Topology Selection">8.1.2 Primitive Topology Selection</A><br>
+<A href="#8.1.3 Input Layout">8.1.3 Input Layout</A><br>
+<A href="#8.1.4 Resource Bindings">8.1.4 Resource Bindings</A><br>
+</DIR>
+</p>
+
+<hr><!-- ********************************************************************** -->
+<A id="8.1.1 Overview"></A>
+<H3>8.1.1 Overview</H3>
+<p>The states defining the Input Assembler's operation are described here.  Draw*() commands on the
+Device, described <a href="#DrawingCommands">below</a><a style="color: Gray"><small><sup>(8.2)</sup></small></a>, use the currently active IA state to define most of their behavior.</p>
+<h3 id="IAPrimitiveTopologySelection"></h3><A id="8.1.2 Primitive Topology Selection"></A>
+<H3>8.1.2 Primitive Topology Selection</H3>
+<p>The following enumeration lists the various <a href="#PrimitiveTopologies">Primitive Topologies</a><a style="color: Gray"><small><sup>(8.10)</sup></small></a> available to the IA.</p>
+<div style="BACKGROUND-COLOR: lightgrey"><pre>
+
+<a id="PrimitiveTopologyEnum">typedef enum D3D11_PRIMITIVE_TOPOLOGY {</a>
+    D3D11_PRIMITIVE_TOPOLOGY_ILLEGAL               = 0, // Cannot use this value.
+    D3D11_PRIMITIVE_TOPOLOGY_POINTLIST             = 1,
+    D3D11_PRIMITIVE_TOPOLOGY_LINELIST              = 2,
+    D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP             = 3,
+    D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST          = 4,
+    D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP         = 5,
+    // 6 is reserved (legacy triangle fan)
+    // 7, 8 and 9 are also reserved
+    D3D11_PRIMITIVE_TOPOLOGY_LINELIST_ADJ          = 10,  // start _ADJ at 10,
+    D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP_ADJ         = 11,  // so bit 3 can encode adjacency
+    D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST_ADJ      = 12,
+    D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP_ADJ     = 13,
+    D3D11_PRIMITIVE_TOPOLOGY_1_CONTROL_POINT_PATCHLIST = 17,
+    D3D11_PRIMITIVE_TOPOLOGY_2_CONTROL_POINT_PATCHLIST,
+    D3D11_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST,
+    D3D11_PRIMITIVE_TOPOLOGY_4_CONTROL_POINT_PATCHLIST,
+    D3D11_PRIMITIVE_TOPOLOGY_5_CONTROL_POINT_PATCHLIST,
+    D3D11_PRIMITIVE_TOPOLOGY_6_CONTROL_POINT_PATCHLIST,
+    D3D11_PRIMITIVE_TOPOLOGY_7_CONTROL_POINT_PATCHLIST,
+    D3D11_PRIMITIVE_TOPOLOGY_8_CONTROL_POINT_PATCHLIST,
+    D3D11_PRIMITIVE_TOPOLOGY_9_CONTROL_POINT_PATCHLIST,
+    D3D11_PRIMITIVE_TOPOLOGY_10_CONTROL_POINT_PATCHLIST,
+    D3D11_PRIMITIVE_TOPOLOGY_11_CONTROL_POINT_PATCHLIST,
+    D3D11_PRIMITIVE_TOPOLOGY_12_CONTROL_POINT_PATCHLIST,
+    D3D11_PRIMITIVE_TOPOLOGY_13_CONTROL_POINT_PATCHLIST,
+    D3D11_PRIMITIVE_TOPOLOGY_14_CONTROL_POINT_PATCHLIST,
+    D3D11_PRIMITIVE_TOPOLOGY_15_CONTROL_POINT_PATCHLIST,
+    D3D11_PRIMITIVE_TOPOLOGY_16_CONTROL_POINT_PATCHLIST,
+    D3D11_PRIMITIVE_TOPOLOGY_17_CONTROL_POINT_PATCHLIST,
+    D3D11_PRIMITIVE_TOPOLOGY_18_CONTROL_POINT_PATCHLIST,
+    D3D11_PRIMITIVE_TOPOLOGY_19_CONTROL_POINT_PATCHLIST,
+    D3D11_PRIMITIVE_TOPOLOGY_20_CONTROL_POINT_PATCHLIST,
+    D3D11_PRIMITIVE_TOPOLOGY_21_CONTROL_POINT_PATCHLIST,
+    D3D11_PRIMITIVE_TOPOLOGY_22_CONTROL_POINT_PATCHLIST,
+    D3D11_PRIMITIVE_TOPOLOGY_23_CONTROL_POINT_PATCHLIST,
+    D3D11_PRIMITIVE_TOPOLOGY_24_CONTROL_POINT_PATCHLIST,
+    D3D11_PRIMITIVE_TOPOLOGY_25_CONTROL_POINT_PATCHLIST,
+    D3D11_PRIMITIVE_TOPOLOGY_26_CONTROL_POINT_PATCHLIST,
+    D3D11_PRIMITIVE_TOPOLOGY_27_CONTROL_POINT_PATCHLIST,
+    D3D11_PRIMITIVE_TOPOLOGY_28_CONTROL_POINT_PATCHLIST,
+    D3D11_PRIMITIVE_TOPOLOGY_29_CONTROL_POINT_PATCHLIST,
+    D3D11_PRIMITIVE_TOPOLOGY_30_CONTROL_POINT_PATCHLIST,
+    D3D11_PRIMITIVE_TOPOLOGY_31_CONTROL_POINT_PATCHLIST,
+    D3D11_PRIMITIVE_TOPOLOGY_32_CONTROL_POINT_PATCHLIST
+} D3D11_PRIMITIVE_TOPOLOGY;
+
+</pre></div>
+<p>The current primitive topology for the IA is defined by the following method:</p>
+<div style="BACKGROUND-COLOR: lightgrey"><pre>
+<a id="SetPrimitiveTopologyAPI">
+IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY PrimitiveTopology)</a>
+
+</pre></div>
+<h3 id="InputLayout"></h3><A id="8.1.3 Input Layout"></A>
+<H3>8.1.3 Input Layout</H3>
+<p>The following enumerations are used to build declarations of 1D Buffer structure layout.  Structure fields are defined
+with format and offset, plus a target register.  Multiple elements (from one or more structures) can not feed a single register.</p>
+<div style="background-color: lightgrey">
+<pre>
+<a id="INPUT_CLASSIFICATION"></a>
+typedef enum D3D11_INPUT_CLASSIFICATION
+{
+    D3D11_INPUT_PER_VERTEX_DATA    = 0,
+    D3D11_INPUT_PER_INSTANCE_DATA  = 1
+} D3D11_INPUT_CLASSIFICATION;
+
+<a id="D3D11_INPUT_ELEMENT_DESC"></a>
+typedef struct D3D11_INPUT_ELEMENT_DESC
+{
+    UINT InputSlot;
+    UINT <a id="ElementOffset">ByteOffset</a>;
+    DXGI_FORMAT <a id="ElementFormat">Format</a>;
+    D3D11_INPUT_CLASSIFICATION <a id="VertexBufferClass">InputSlotClass</a>; // must be same for all Elements at same InputSlot
+    UINT <a id="InstanceDataStepRate">InstanceDataStepRate</a>;   // InstanceDataStepRate is how many
+                                 // Instances to draw before stepping one
+                                 // unit forward in a VertexBuffer containing
+                                 // Instance Data.
+                                 // InstanceDataStepRate must be 0 and is
+                                 // not used when InputSlotClass == D3D11_INPUT_PER_VERTEX_DATA.
+                                 // But when Class == D3D11_INPUT_PER_INSTANCE_DATA,
+                                 // InstanceDataStepRate can be any value, including 0.
+                                 // 0 takes special meaning, that the instance data
+                                 // should never be stepped at all.
+                                 // This must be the same for all Elements at same InputSlot
+
+    UINT <a id="ElementRegister">InputRegister</a>; // Which register in the set of
+                                                     // inputs to the first active Pipeline
+                                                     // stage this Element is going to.
+} D3D11_INPUT_ELEMENT_DESC;
+</pre></div>
+<p>The following command creates an input layout.</p>
+<div style="background-color: lightgrey">
+<pre>
+<a id="CreateInputLayoutAPI"></a>
+CreateInputLayout(
+    const <a href="#D3D11_INPUT_ELEMENT_DESC"> D3D11_INPUT_ELEMENT_DESC</a>* pDeclaration,
+    SIZE_T NumElements,
+    ID3D10InputLayout **ppInputLayout);
+
+</pre></div>
+<h3 id="IAResourceBindingCommands"></h3><A id="8.1.4 Resource Bindings"></A>
+<H3>8.1.4 Resource Bindings</H3>
+<p>The following methods bind input vertex buffer(s) to the IA.  A set of up to <a href="#D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT" title="D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT"><font color=black style="text-decoration:none">32</font></a>
+Buffers can be bound at once.  The layout of verrtex or instance data in all of the Buffers is defined by an
+Input Layout object.  There is also a method for binding an Index Buffer to the IA (having a single Element format describing its data layout). </p>
+<div style="BACKGROUND-COLOR: lightgrey"><pre>
+
+<a id="SetVertexBufferAPI"></a>
+IASetVertexBuffers( UINT <a id="SlotDesc">StartSlot</a>, // first Slot for which a Buffer is being bound
+                    UINT NumBuffers, // number of slots having Buffers bound
+                    ID3D10Buffer *const *<a id="pVertexBuffers">pVertexBuffers</a>,
+                    const UINT *<a id="pStrides">pStrides</a>,
+                    const UINT *<a id="pOffsets">pOffsets</a> );
+
+<a id="SetInputLayoutAPI"></a>
+IASetInputLayout( ID3D10InputLayout *pLayout,
+                  <a href="#CreateInputLayoutAPI">ID3D10InputLayout</a>* <a id="pInputLayout">pInputLayout</a> );
+
+<a id="SetIndexBufferAPI"></a>
+IASetIndexBuffer( ID3D10Buffer* <a id="pIndexBuffer">pBuffer</a>,
+                  DXGI_FORMAT <a id="IndexBufferFormat">Format</a>,
+                  UINT <a id="IndexBufferOffsetInBytes">Offset</a> );
+
+</pre></div>
+<h2 id="DrawingCommands"></h2><A id="8.2 Drawing Commands"></A>
+<H2>8.2 Drawing Commands</H2>
+<p>The following rendering commands on a device, <a href="#DrawAPI">Draw()</a><a style="color: Gray"><small><sup>(8.3)</sup></small></a>,
+<a href="#DrawInstancedAPI">DrawInstanced()</a><a style="color: Gray"><small><sup>(8.4)</sup></small></a>,
+<a href="#DrawIndexedAPI">DrawIndexed()</a><a style="color: Gray"><small><sup>(8.5)</sup></small></a>,
+<a href="#DrawIndexedInstancedAPI">DrawIndexedInstanced()</a><a style="color: Gray"><small><sup>(8.6)</sup></small></a>,
+<a href="#DrawInstancedIndirectAPI">DrawInstancedIndirect()</a><a style="color: Gray"><small><sup>(8.7)</sup></small></a>, and
+<a href="#DrawIndexedInstancedIndirectAPI">DrawIndexedInstancedIndirect()</a><a style="color: Gray"><small><sup>(8.8)</sup></small></a> introduce primitives into the D3D<a href="#D3D11_MAJOR_VERSION" title="D3D11_MAJOR_VERSION"><font color=black style="text-decoration:none">11</font></a>.<a href="#D3D11_MINOR_VERSION" title="D3D11_MINOR_VERSION"><font color=black style="text-decoration:none">3</font></a> Pipeline.</p>
+
+<h2 id="DrawAPI"></h2><A id="8.3 Draw()"></A>
+<H2>8.3 Draw()</H2>
+<div style="BACKGROUND-COLOR: lightgrey"><pre>
+
+Draw(   UINT VertexCount
+        UINT StartVertexLocation)
+
+</pre></div>
+<table border="1" id="DrawParameters" frame=border>
+<tr>
+  <td>UINT VertexCount          <td>How many vertices to read sequentially from the Vertex Buffer(s)</td></tr>
+<tr>
+  <td>UINT StartVertexLocation  <td>Which Vertex to start at in each Vertex Buffer.</td></tr>
+</table>
+<A id="8.3.1 Pseudocode for Draw() Vertex Address Calculations and VertexID/PrimitiveID/InstanceID Generation in Hardware"></A>
+<H3>8.3.1 Pseudocode for Draw() Vertex Address Calculations and VertexID/PrimitiveID/InstanceID Generation in Hardware</H3>
+<p>See the pseudocode for DrawInstanced(), below.
+Draw() behaves the same as DrawInstanced(), with InstanceCount = 1 and StartInstanceLocation = 0.  If "Instance" data
+has been bound, it will be used.  But the intent is for this method to be used without instancing.</p>
+
+<h2 id="DrawInstancedAPI"></h2><A id="8.4 DrawInstanced()"></A>
+<H2>8.4 DrawInstanced()</H2>
+<div style="BACKGROUND-COLOR: lightgrey"><pre>
+
+DrawInstanced(  UINT <a id="VertexCountPerInstance">VertexCountPerInstance</a>,
+        UINT <a id="DrawInstancedInstanceCount">InstanceCount</a>,
+                UINT <a id="StartVertexLocation">StartVertexLocation</a>,
+                UINT <a id="DrawInstancedStartInstanceLocation">StartInstanceLocation</a>)
+
+</pre></div>
+<table border="1"id="DrawInstancedParameters" frame=border>
+<tr>
+  <td>UINT VertexCountPerInstance   <td>How many vertices to read sequentially from Buffer(s) marked as Vertex Data (same set repeated for each Instance).</td></tr>
+<tr>
+  <td>UINT InstanceCount            <td>How many Instances to render.</td></tr>
+<tr>
+  <td>UINT StartVertexLocation      <td>Which Vertex to start at in each Buffer marked as Vertex Data (for each Instance).</td></tr>
+<tr>
+  <td>UINT StartInstanceLocation    <td>Which Instance to start sequentially fetching from in each Buffer marked as Instance Data.</td></tr>
+</table>
+<A id="8.4.1 Pseudocode for DrawInstanced() Vertex Address Calculations in Hardware"></A>
+<H3>8.4.1 Pseudocode for DrawInstanced() Vertex Address Calculations in Hardware</H3>
+<pre>
+UINT VertexBufferElementAddressInBytes[<a href="#D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT" title="D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT"><font color=black style="text-decoration:none">32</font></a>][<a href="#D3D11_IA_VERTEX_INPUT_STRUCTURE_ELEMENT_COUNT" title="D3D11_IA_VERTEX_INPUT_STRUCTURE_ELEMENT_COUNT"><font color=black style="text-decoration:none">32</font></a>]; // [D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT]
+                                                // [D3D11_IA_VERTEX_INPUT_STRUCTURE_ELEMENT_COUNT]
+
+UINT InstanceDataStepCounter[<a href="#D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT" title="D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT"><font color=black style="text-decoration:none">32</font></a>]; // [D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT]
+
+// Initialize starting Vertex Buffer addresses
+for(each slot, s, <a href="#SetVertexBufferAPI">with a VertexBuffer assigned</a>)
+{
+    if(<a href="#SlotDesc">Slot</a>[s].<a href="#VertexBufferClass">Class</a> == <a href="#INPUT_CLASSIFICATION">D3D11_INPUT_PER_VERTEX_DATA</a>)
+    {
+        for(each Element, e, <a href="#SetInputLayoutAPI">in the Buffer's Input Layout</a>)
+        {
+            VertexBufferElementAddressInBytes[s][e] =
+                <a href="#SlotDesc">Slot</a>[s].<a href="#pOffsets">VertexBufferOffsetInBytes</a> +
+                <a href="#SlotDesc">Slot</a>[s].<a href="#pStrides">StrideInBytes</a>*<a href="#StartVertexLocation">StartVertexLocation</a> +
+                <a href="#SlotDesc">Slot</a>[s].<a href="#pInputLayout">pInputLayout</a>-&gt;pElement[e].<a href="#ElementOffset">OffsetInBytes</a>;
+        } // Element loop
+    }
+    else // (<a href="#SlotDesc">Slot</a>[s].<a href="#VertexBufferClass">Class</a> == <a href="#INPUT_CLASSIFICATION">D3D11_INPUT_PER_INSTANCE_DATA</a>)
+    {
+        for(each Element, e, <a href="#SetInputLayoutAPI">in the Buffer's Input Layout</a>)
+        {
+            VertexBufferElementAddressInBytes[s][e] =
+                <a href="#SlotDesc">Slot</a>[s].<a href="#pOffsets">VertexBufferOffsetInBytes</a> +
+                <a href="#SlotDesc">Slot</a>[s].<a href="#pStrides">StrideInBytes</a>*<a href="#DrawInstancedStartInstanceLocation">StartInstanceLocation</a> +
+                <a href="#SlotDesc">Slot</a>[s].<a href="#pInputLayout">pInputLayout</a>-&gt;pElement[e].<a href="#ElementOffset">OffsetInBytes</a>;
+        } // Element loop
+        InstanceDataStepCounter[s] = <a href="#SlotDesc">Slot</a>[s].<a href="#InstanceDataStepRate">InstanceDataStepRate</a>;
+    }
+} // slot loop
+
+// Now compute addresses and fetch data
+// for all elements of each buffer for each vertex
+// for each instance.
+
+for(UINT InstanceID = 0;  InstanceID &lt; <a href="#DrawInstancedInstanceCount">InstanceCount</a>; InstanceID++)
+{
+    for(UINT VertexID = 0;  VertexID &lt; <a href="#VertexCountPerInstance">VertexCountPerInstance</a>; VertexID++)
+    {
+        for(each slot, s, <a href="#SetVertexBufferAPI">with a VertexBuffer assigned</a>)
+        {
+            for(each Element, e, <a href="#SetInputLayoutAPI">in the buffer's Input Layout</a>)
+            {
+                // Fetch this vertex Element's data from <a href="#SlotDesc">Slot</a>[s].<a href="#pVertexBuffers">pBuffer</a>
+                // at address VertexBufferElementAddressInBytes[s][e],
+                // with type <a href="#SlotDesc">Slot</a>[s].<a href="#pInputLayout">pInputLayout</a>-&gt;pElement[e].<a href="#ElementFormat">Format</a>,
+                // and output to the Shader Register identified by <a href="#SlotDesc">Slot</a>[s].<a href="#pInputLayout">pInputLayout</a>-&gt;pElement[e].<a href="#ElementRegister">Register</a>,
+                // taking account the writemask declared in the shader.
+                FetchDataFromMemory(VertexBufferElementAddressInBytes[s][e],s,e);
+
+                if(<a href="#SlotDesc">Slot</a>[s].<a href="#VertexBufferClass">Class</a> == <a href="#INPUT_CLASSIFICATION">D3D11_INPUT_PER_VERTEX_DATA</a>)
+                {
+                    // Increment the address for the next access
+                    VertexBufferElementAddressInBytes[s][e] +=
+                        <a href="#SlotDesc">Slot</a>[s].<a href="#pStrides">StrideInBytes</a>;
+                }
+            } // Element loop
+        } // slot loop
+    } // vertex loop
+
+    // Patch Instance and Vertex Data addresses at the end of an instance.
+    for(each slot, s, with a VertexBuffer assigned)
+    {
+        if(<a href="#SlotDesc">Slot</a>[s].<a href="#VertexBufferClass">Class</a> == <a href="#INPUT_CLASSIFICATION"> D3D11_INPUT_PER_VERTEX_DATA</a>)
+        {
+            for(each Element, e, <a href="#SetInputLayoutAPI">in the buffer's structure declaration</a>)
+            {
+                VertexBufferElementAddressInBytes[s][e] =
+                    <a href="#SlotDesc">Slot</a>[s].<a href="#pOffsets">VertexBufferOffsetInBytes</a> +
+                    <a href="#SlotDesc">Slot</a>[s].<a href="#pStrides">StrideInBytes</a>*<a href="#StartVertexLocation">StartVertexLocation</a> +
+                    <a href="#SlotDesc">Slot</a>[s].<a href="#pInputLayout">pInputLayout</a>-&gt;pElement[e].<a href="#ElementOffset">OffsetInBytes</a>;
+            } // Element loop
+        }
+        else //(<a href="#SlotDesc">Slot</a>[s].<a href="#VertexBufferClass">Class</a> == <a href="#INPUT_CLASSIFICATION">D3D11_INPUT_PER_INSTANCE_DATA</a>)
+        {
+            if(1 == InstanceDataStepCounter[s])
+            {
+                for(each Element, e, <a href="#SetInputLayoutAPI">in the buffer's structure declaration</a>)
+                {
+                    VertexBufferElementAddressInBytes[s][e] +=
+                        <a href="#SlotDesc">Slot</a>[s].<a href="#pStrides">StrideInBytes</a>;
+                }
+                InstanceDataStepCounter[s] = <a href="#SlotDesc">Slot</a>[s].<a href="#InstanceDataStepRate">InstanceDataStepRate</a>;
+            }
+            else if(1 &lt; InstanceDataStepCounter[s])
+            {
+                InstanceDataStepCounter[s]--;
+            }
+        }
+    } // slot loop
+
+    RestartTopology(); // restart at the end of an instance
+} //instance loop
+
+</pre>
+<A id="8.4.2 Pseudocode for DrawInstanced() VertexID/PrimitiveID/InstanceID Calculations in Hardware"></A>
+<H3>8.4.2 Pseudocode for DrawInstanced() VertexID/PrimitiveID/InstanceID Calculations in Hardware</H3>
+<pre>
+// The following pseudocode for calculating IDs has been separated out from the
+// address calculation pseudocode above, for clarity. In practice the
+// algorithms would be merged, or possibly be implemented as part of the
+// primitive assembly process.  Note that VertexID/PrimitiveID/InstanceID
+// values are unrelated to address calculations for IA data fetching.
+// If desired, applications can choose ID starting values so that IDs can be used in
+// Shaders to load data from memory out of similar locations in memory as
+// the IA's fixed addressing calculations would have.
+
+UINT VertsPerPrimitive = GetNumVertsBetweenPrimsInCurrentTopology();
+    // e.g. VertsPerPrimitive = 3 for tri list
+    //                        = 6 for tri list w/adj
+    //                        = 1 for tri strip
+    //                        = 2 for tri strip w/adj
+    //                        = 2 for line list
+    //                        = 4 for line list w/adj
+    //                        = 1 for line strip
+    //                        = 1 for line strip w/adj
+    //                        = 1 for point list
+
+UINT VertsPerCompletedPrimitive =
+            GetNumVertsUntilFirstCompletedPrimitiveInCurrentTopology();
+    // e.g. VertsPerCompletedPrimitive = 3 for tri list
+    //                                 = 6 for tri list w/adj
+    //                        =  3 for tri strip
+    //                                 = 7 for tri strip w/adj, (not 6) since 1
+    //                                        vert is not involved in the prim,
+    //                                        when the strip has more than one
+    //                                        primitive.
+    //                                 = 2 for line list
+    //                                 = 4 for line list w/adj
+    //                                 = 2 for line strip
+    //                                 = 4 for line strip w/adj
+    //                                 = 1 for point list
+
+for(UINT InstanceID = 0; InstanceID &lt; <a href="#DrawInstancedInstanceCount">InstanceCount</a>; InstanceID++)
+{
+    UINT PrimitiveID = 0;
+    UINT VertsUntilNextCompletePrimitive = VertsPerCompletedPrimitive;
+
+    SetNextInstanceID(InstanceID); // subsequent vertices and primitives
+                                   // will get this InstanceID
+
+    for(UINT VertexID = 0; VertexID &lt; <a href="#VertexCountPerInstance">VertexCountPerInstance</a>; VertexID++)
+    {
+        VertsUntilNextCompletePrimitive--;
+        if( VertsUntilNextCompletePrimitive == 0 )
+        {
+            SetNextPrimitiveID(PrimitiveID++);
+            VertsUntilNextCompletePrimitive = VertsPerPrimitive;
+        }
+        SetNextVertexID(VertexID);
+    } // vertex loop
+
+    if( IsTriangleStripWithAdjacency() &amp;&amp; (VertsUntilNextCompletePrimitive == 1)
+    {
+        // When traversing a triangle strip w/ adjacency, after the initial 7
+        // vertices, every other vertex completes a primitive, EXCEPT when
+        // the end of the strip is reached, where the last 2 consecutive
+        // vertices each complete a primitive.
+        SetNextPrimitiveID(PrimitiveID++); // in a tristrip w/adj
+                                           // the last completed primitive has
+                                           // not been counted yet.
+    }
+} // instance loop
+</pre>
+<h2 id="DrawIndexedAPI"></h2><A id="8.5 DrawIndexed()"></A>
+<H2>8.5 DrawIndexed()</H2>
+<div style="BACKGROUND-COLOR: lightgrey"><pre>
+
+DrawIndexed(    UINT IndexCount,
+                UINT StartIndexLocation,
+                INT  BaseVertexLocation)
+
+</pre></div>
+<table border="1" id="DrawIndexedParamters" frame="border">
+<tr>
+  <td>UINT IndexCount               <td>How many indices to read sequentially from the Index Buffer.</td></tr>
+<tr>
+  <td>UINT StartIndexLocation       <td>Which Index to start at in the Index Buffer.</td></tr>
+<tr>
+  <td>INT  BaseVertexLocation       <td>Which Vertex in each buffer marked as Vertex Data to consider as Index "0".  Note that this value is signed.
+                                        A negative BaseVertexLocation allows, for example, the first vertex to be referenced by an index value &gt; 0.</td></tr>
+</table>
+<A id="8.5.1 Pseudocode for DrawIndexed() Vertex Address and VertexID/PrimitiveID/InstanceID Calculations in Hardware"></A>
+<H3>8.5.1 Pseudocode for DrawIndexed() Vertex Address and VertexID/PrimitiveID/InstanceID Calculations in Hardware</H3>
+<p>See the pseudocode for DrawIndexedInstanced(), below.
+DrawIndexed() behaves the same as DrawIndexedInstanced(), with InstanceCount = 1 and StartInstanceLocation = 0.  If "Instance" data
+has been bound, it will be used.  But the intent is for this method to be used without instancing.</p>
+
+<h2 id="DrawIndexedInstancedAPI"></h2><A id="8.6 DrawIndexedInstanced()"></A>
+<H2>8.6 DrawIndexedInstanced()</H2>
+<div style="BACKGROUND-COLOR: lightgrey"><pre>
+
+DrawIndexedInstanced(   UINT <a id="IndexCountPerInstance">IndexCountPerInstance</a>,
+                        UINT <a id="DrawIndexedInstancedInstanceCount">InstanceCount</a>,
+                        UINT <a id="StartIndexLocation">StartIndexLocation</a>,
+                        INT  <a id="BaseVertexLocation">BaseVertexLocation</a>,
+                        UINT <a id="DrawIndexedInstancedStartInstanceLocation">StartInstanceLocation</a>)
+
+</pre></div>
+<table border="1" id="DrawInstancedIndexedParameters" frame=border>
+<tr>
+  <td>UINT IndexCountPerInstance    <td>How many indices to read sequentially from the Index Buffer (same set repeated for each Instance).</td></tr>
+<tr>
+  <td>UINT InstanceCount            <td>How many Instances to render.</td></tr>
+<tr>
+  <td>UINT StartIndexLocation       <td>Which Index to start at in the Index Buffer (for each Instance).</td></tr>
+<tr>
+  <td>INT BaseVertexLocation        <td>Which Vertex in each buffer marked as Vertex Data to consider as Index "0".  Note that this value is signed.
+                                        A negative BaseVertexLocation allows, for example, the first vertex to be referenced by an index value &gt; 0.</td></tr>
+<tr>
+  <td>UINT StartInstanceLocation    <td>Which Instance to start sequentially fetching from in each Buffer marked as Instance Data.</td></tr>
+</table>
+<A id="8.6.1 Pseudocode for DrawIndexedInstanced() Vertex Address Calculations in Hardware"></A>
+<H3>8.6.1 Pseudocode for DrawIndexedInstanced() Vertex Address Calculations in Hardware</H3>
+<pre>
+
+UINT VertexBufferElementAddressInBytes[<a href="#D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT" title="D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT"><font color=black style="text-decoration:none">32</font></a>][<a href="#D3D11_IA_VERTEX_INPUT_STRUCTURE_ELEMENT_COUNT" title="D3D11_IA_VERTEX_INPUT_STRUCTURE_ELEMENT_COUNT"><font color=black style="text-decoration:none">32</font></a>]; // [D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT]
+                                                // [D3D11_IA_VERTEX_INPUT_STRUCTURE_ELEMENT_COUNT]
+UINT InstanceDataStepCounter[<a href="#D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT" title="D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT"><font color=black style="text-decoration:none">32</font></a>]; // [D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT]
+
+// Initialize starting Index Buffer address
+UINT IndexBufferElementAddressInBytes = <a href="#StartIndexLocation">StartIndexLocation</a>*sizeof(<a href="#SetIndexBufferAPI">IndexBuffer</a>.<a href="#IndexBufferFormat">Format</a>) + <a href="#IndexBufferOffsetInBytes">IndexBufferOffsetInBytes</a>;
+
+// Initialize starting Vertex Buffer addresses
+// (relevant to Instance Data only, as this is traversed without indexing.
+for(each slot, s, <a href="#SetVertexBufferAPI">with a VertexBuffer assigned</a>)
+{
+    if(<a href="#SlotDesc">Slot</a>[s].<a href="#VertexBufferClass">Class</a> == <a href="#INPUT_CLASSIFICATION">D3D11_INPUT_PER_INSTANCE_DATA</a>)
+    {
+        for(each Element, e, <a href="#SetInputLayoutAPI">in the Buffer's structure declaration</a>)
+        {
+            VertexBufferElementAddressInBytes[s][e] =
+                <a href="#SlotDesc">Slot</a>[s].<a href="#pOffsets">VertexBufferOffsetInBytes</a> +
+                <a href="#SlotDesc">Slot</a>[s].<a href="#pStrides">StrideInBytes</a>*<a href="#DrawIndexedInstancedStartInstanceLocation">StartInstanceLocation</a> +
+                <a href="#SlotDesc">Slot</a>[s].<a href="#pInputLayout">pInputLayout</a>-&gt;pElement[e].<a href="#ElementOffset">OffsetInBytes</a>;
+        } // Element loop
+        InstanceDataStepCounter[s] = <a href="#SlotDesc">Slot</a>[s].<a href="#InstanceDataStepRate">InstanceDataStepRate</a>;
+    }
+} // slot loop
+
+// Now compute addresses and fetch data
+// for all elements of each buffer for each vertex
+// for each instance.
+
+for(UINT InstanceID = 0; InstanceID &lt; <a href="#DrawIndexedInstancedInstanceCount">InstanceCount</a>; InstanceID++)
+{
+    for(UINT i = 0; i &lt; <a href="#IndexCountPerInstance">IndexCountPerInstance</a>; i++)
+    {
+        UINT IndexValue = FetchIndexFromIndexBuffer(IndexBufferElementAddressInBytes,<a href="#SetIndexBufferAPI">IndexBuffer</a>.<a href="#IndexBufferFormat">Format</a>)
+
+        if(<a href="#Cut">GetPredefinedCutIndexValue</a>(<a href="#SetIndexBufferAPI">IndexBuffer</a>.<a href="#IndexBufferFormat">Format</a>) == IndexValue)
+        {
+            RestartTopology();
+
+            // Increment the index address
+            IndexBufferElementAddressInBytes += sizeof(<a href="#SetIndexBufferAPI">IndexBuffer</a>.<a href="#IndexBufferFormat">Format</a>);
+
+            // No vertex to fetch for this iteration...
+            continue;
+        }
+
+        for(each slot, s, <a href="#SetVertexBufferAPI">with a VertexBuffer assigned</a>)
+        {
+            UINT IndexedOffset;
+            if(<a href="#SlotDesc">Slot</a>[s].<a href="#VertexBufferClass">Class</a> == <a href="#INPUT_CLASSIFICATION">D3D11_INPUT_PER_VERTEX_DATA</a>)
+            {
+                IndexedOffset = <a href="#SlotDesc">Slot</a>[s].<a href="#pStrides">StrideInBytes</a>*(<a href="#BaseVertexLocation"> BaseVertexLocation</a> + IndexValue);
+            }
+            for(each Element, e, <a href="#SetInputLayoutAPI">in the buffer's structure declaration</a>)
+            {
+                if(<a href="#SlotDesc">Slot</a>[s].<a href="#VertexBufferClass">Class</a> == <a href="#INPUT_CLASSIFICATION">D3D11_INPUT_PER_VERTEX_DATA</a>)
+                {
+                    VertexBufferElementAddressInBytes[s][e] =
+                        <a href="#SlotDesc">Slot</a>[s].<a href="#pOffsets">VertexBufferOffsetInBytes</a> +
+                        IndexedOffset +
+                        <a href="#SlotDesc">Slot</a>[s].pInputLayout-&gt;pElement[e].<a href="#ElementOffset">OffsetInBytes</a>;
+                }
+
+                // Fetch this vertex Element's data from <a href="#SlotDesc">Slot</a>[s].<a href="#pVertexBuffers">pBuffer</a>
+                // at address VertexBufferElementAddressInBytes[s][e],
+                // with type <a href="#SlotDesc">Slot</a>[s].<a href="#pInputLayout">pInputLayout</a>-&gt;pElement[e].Format,
+                // and output to the Shader Register identified by <a href="#SlotDesc">Slot</a>[s].<a href="#pInputLayout">pInputLayout</a>-&gt;pElement[e].<a href="#ElementRegister">Register</a>,
+                // taking account the writemask declared in the shader.
+                FetchDataFromMemory(VertexBufferElementAddressInBytes[s][e],s,e);
+
+            } // Element loop
+        } // slot loop
+        // Increment the index address
+        IndexBufferElementAddressInBytes += sizeof(<a href="#SetIndexBufferAPI">IndexBuffer</a>.<a href="#IndexBufferFormat">Format</a>);
+    } // index loop
+
+
+    // Patch Instance Data addresses at the end of an instance.
+    for(each slot, s, <a href="#SetVertexBufferAPI">with a VertexBuffer assigned</a>)
+    {
+        if(<a href="#SlotDesc">Slot</a>[s].<a href="#VertexBufferClass">Class</a> == <a href="#INPUT_CLASSIFICATION">D3D11_INPUT_PER_INSTANCE_DATA</a>)
+        {
+            if(1 == InstanceDataStepCounter[s])
+            {
+                for(each Element, e, <a href="#SetInputLayoutAPI">in the buffer's structure declaration</a>n)
+                {
+                    VertexBufferElementAddressInBytes[s][e] +=
+                        <a href="#SlotDesc">Slot</a>[s].<a href="#pStrides">StrideInBytes</a>;
+                }
+                InstanceDataStepCounter[s] = <a href="#SlotDesc">Slot</a>[s].<a href="#InstanceDataStepRate">InstanceDataStepRate</a>;
+            }
+            else if(1 &lt; InstanceDataStepCounter[s])
+            {
+                InstanceDataStepCounter[s]--;
+            }
+        }
+    } // slot loop
+
+    RestartTopology();  // restart at the end of an instance
+} //instance loop
+</pre>
+<A id="8.6.2 Pseudocode for DrawIndexedInstanced() VertexID/PrimitiveID/InstanceID Calculations in Hardware"></A>
+<H3>8.6.2 Pseudocode for DrawIndexedInstanced() VertexID/PrimitiveID/InstanceID Calculations in Hardware</H3>
+<pre>
+// The following pseudocode for calculating IDs has been separated out from the
+// address calculation pseudocode above, for clarity. In practice the
+// algorithms would be merged, or possibly be implemented as part of the
+// primitive assembly process.  Note that VertexID/PrimitiveID/InstanceID
+// values are unrelated to address calculations for IA data fetching.
+// If desired, applications can choose ID starting values so that IDs can be used in
+// Shaders to load data from memory out of similar locations in memory as
+// the IA's fixed addressing calculations would have.
+
+UINT VertsPerPrimitive = GetNumVertsBetweenPrimsInCurrentTopology();
+    // e.g. VertsPerPrimitive = 3 for tri list
+    //                        = 6 for tri list w/adj
+    //                        = 1 for tri strip
+    //                        = 2 for tri strip w/adj
+    //                        = 2 for line list
+    //                        = 4 for line list w/adj
+    //                        = 1 for line strip
+    //                        = 1 for line strip w/adj
+    //                        = 1 for point list
+
+UINT VertsPerCompletedPrimitive =
+            GetNumVertsUntilFirstCompletedPrimitiveInCurrentTopology();
+    // e.g. VertsPerCompletedPrimitive = 3 for tri list
+    //                                 = 6 for tri list w/adj
+    //                                 = 3 for tri strip
+    //                                 = 7 for tri strip w/adj, (not 6) since 1
+    //                                        vert is not involved in the prim,
+    //                                        when the strip has more than one
+    //                                        primitive.
+    //                                 = 2 for line list
+    //                                 = 4 for line list w/adj
+    //                                 = 2 for line strip
+    //                                 = 4 for line strip w/adj
+    //                                 = 1 for point list
+
+UINT CutIndexValue = <a href="#Cut">GetPredefinedCutIndexValue</a>(<a href="#SetIndexBufferAPI">IndexBuffer</a>.<a href="#IndexBufferFormat">Format</a>);
+
+for(UINT InstanceID = 0; InstanceID &lt; <a href="#DrawIndexedInstancedInstanceCount">InstanceCount</a>; InstanceID++)
+{
+    UINT PrimitiveID = 0;
+    UINT VertsUntilNextCompletePrimitive = VertsPerCompletedPrimitive;
+
+    SetNextInstanceID(InstanceID); // subsequent vertices and primitives
+                                   // will get this InstanceID
+    for(UINT i = 0; i &lt; <a href="#IndexCountPerInstance">IndexCountPerInstance</a>; i++)
+    {
+        UINT IndexValue = FetchIndexFromIndexBuffer(); // detail hidden
+        // IndexValue assignment above: Detail hidden, see full index fetch calculation in
+        // DrawIndexedInstanced() pseudocode (which in practice this code would be merged with)
+
+        if(CutIndexValue == IndexValue)
+        {
+            if( IsTriangleStripWithAdjacency() &amp;&amp; (VertsUntilNextCompletePrimitive == 1)
+            {
+                // When traversing a triangle strip w/ adjacency, after the initial 7
+                // vertices, every other vertex completes a primitive, EXCEPT when
+                // the end of the strip is reached, where the last 2 consecutive
+                // vertices each complete a primitive.
+                SetNextPrimitiveID(PrimitiveID++); // in a tristrip w/adj
+                                                   // the last completed primitive has
+                                                   // not been counted yet.
+            }
+            VertsUntilNextCompletePrimitive = VertsPerCompletedPrimitive;
+        }
+        else
+        {
+            VertsUntilNextCompletePrimitive--;
+            if( VertsUntilNextCompletePrimitive == 0 )
+            {
+                SetNextPrimitiveID(PrimitiveID++);
+                VertsUntilNextCompletePrimitive = VertsPerPrimitive;
+            }
+            SetNextVertexID(IndexValue);
+        }
+    } // vertex loop
+
+    if( IsTriangleStripWithAdjacency() &amp;&amp; (VertsUntilNextCompletePrimitive == 1)
+    {
+        // When traversing a triangle strip w/ adjacency, after the initial 7
+        // vertices, every other vertex completes a primitive, EXCEPT when
+        // the end of the strip is reached, where the last 2 consecutive
+        // vertices each complete a primitive.
+        SetNextPrimitiveID(PrimitiveID++);  // in a tristrip w/adj
+                                            // the last completed primitive has
+                                            // not been counted yet.
+    }
+} // instance loop
+</pre>
+<h2 id="DrawInstancedIndirectAPI"></h2><A id="8.7 DrawInstancedIndirect()"></A>
+<H2>8.7 DrawInstancedIndirect()</H2>
+<div style="BACKGROUND-COLOR: lightgrey"><pre>
+DrawInstancedIndirect(
+    ID3D11Buffer *pBufferForArgs,
+    UINT AlignedByteOffsetForArgs);
+
+struct DrawInstancedIndirectArgs
+{
+    UINT <a id="DrawInstancedIndirectVertexCountPerInstance">VertexCountPerInstance</a>,
+    UINT <a id="DrawInstancedIndirectInstanceCount">InstanceCount</a>,
+    UINT <a id="DrawInstancedIndirectStartVertexLocation">StartVertexLocation</a>,
+    UINT <a id="DrawInstancedIndirectStartInstanceLocation">StartInstanceLocation</a>)
+}
+</pre></div>
+<table border="1" id="DrawInstancedIndirectParameters" frame=border>
+<tr>
+  <td>ID3D11Buffer *pBufferForArgs   <td>A buffer that contains an array of DrawInstancedArgs, described in the struct above.</td></tr>
+<tr>
+  <td>UINT AlignedByteOffsetForArgs   <td>A DWORD aligned - byte offset for the data.</td></tr>
+<tr>
+  <td>UINT VertexCountPerInstance   <td>How many vertices to read sequentially from Buffer(s) marked as Vertex Data (same set repeated for each Instance).</td></tr>
+<tr>
+  <td>UINT InstanceCount            <td>How many Instances to render.</td></tr>
+<tr>
+  <td>UINT StartVertexLocation      <td>Which Vertex to start at in each Buffer marked as Vertex Data (for each Instance).</td></tr>
+<tr>
+  <td>UINT StartInstanceLocation    <td>Which Instance to start sequentially fetching from in each Buffer marked as Instance Data.</td></tr>
+</table>
+
+<p>If the address range in the Buffer where DrawInstancedIndirect&rsquo;s parameters will be fetched from would go out of bounds of the Buffer, behavior is undefined.</p>
+
+<p><a href="#InitializingIndirectArguments">Here</a><a style="color: Gray"><small><sup>(18.6.5.1)</sup></small></a> is a discussion about ways to initialize the arguments for DrawInstancedIndirect.</p>
+
+<h2 id="DrawIndexedInstancedIndirectAPI"></h2><A id="8.8 DrawIndexedInstancedIndirect()"></A>
+<H2>8.8 DrawIndexedInstancedIndirect()</H2>
+<div style="BACKGROUND-COLOR: lightgrey"><pre>
+DrawIndexedInstancedIndirect(
+        ID3D11Buffer *pBufferForArgs,
+        UINT AlignedByteOffsetForArgs);
+
+struct DrawIndexedInstancedIndirectArgs
+{
+    UINT <a id="DrawIndexedInstancedIndirectDrawIndexedInstancedIndirectIndexCountPerInstance">IndexCountPerInstance</a>,
+    UINT <a id="DrawIndexedInstancedIndirectInstanceCount">InstanceCount</a>,
+    UINT <a id="DrawIndexedInstancedIndirectStartIndexLocation">StartIndexLocation</a>,
+    UINT <a id="DrawIndexedInstancedIndirectBaseVertexLocation">BaseVertexLocation</a>,
+    UINT <a id="DrawIndexedInstancedIndirectStartInstanceLocation">StartInstanceLocation</a>)
+}
+</pre></div>
+<table border="1" id="DrawIndexedInstancedIndirectParameters" frame=border>
+<tr>
+  <td>ID3D11Buffer *pBufferForArgs   <td>A buffer that contains an array of DrawInstancedArgs, described in the struct above.</td></tr>
+<tr>
+  <td>UINT AlignedByteOffsetForArgs   <td>A DWORD aligned byte offset for the data.</td></tr>
+<tr>
+  <td>UINT IndexCountPerInstance   <td>How many indices to read sequentially from the Index Buffer (same set repeated for each Instance).</td></tr>
+<tr>
+  <td>UINT StartIndexLocation      <td>Which Index to start at in the Index Buffer.(for each Instance).</td></tr>
+<tr>
+  <td>UINT InstanceCount            <td>How many Instances to render.</td></tr>
+<tr>
+  <td>INT BaseVertexLocation     <td>Which Vertex in each buffer marked as Vertex Data to consider as Index "0". Note that this value is signed. A negative BaseVertexLocation allows, for example, the first vertex to be referenced by an index value &gt; 0.</td></tr>
+<tr>
+  <td>UINT StartInstanceLocation    <td>Which Instance to start sequentially fetching from in each Buffer marked as Instance Data.</td></tr>
+</table>
+
+<p>If the address range in the Buffer where DrawIndexedInstancedIndirect&rsquo;s parameters will be fetched from would go out of bounds of the Buffer, behavior is undefined.</p>
+
+<p><a href="#InitializingIndirectArguments">Here</a><a style="color: Gray"><small><sup>(18.6.5.1)</sup></small></a> is a discussion about ways to initialize the arguments for DrawIndexedInstancedIndirect.</p>
+
+<h2 id="DrawAuto"></h2><A id="8.9 DrawAuto()"></A>
+<H2>8.9 DrawAuto()</H2>
+<p>DrawAuto is used with <a href="#StreamOutput">StreamOutput</a><a style="color: Gray"><small><sup>(14)</sup></small></a> in order to
+use a Stream Output Buffer as an Input Assembler Vertex Input Buffer without
+requiring the BufferFilledSize to get back to the CPU. The Buffer bound to slot zero must
+have both the Stream Output andInput Assembler Vertex Input Bind Flags set. When invoked,
+DrawAuto will draw from the Buffer offset associate with slot zero to the
+<a href="#BufferFilledSize">BufferFilledSize</a><a style="color: Gray"><small><sup>(14.4)</sup></small></a> associated with the Buffer. If the
+BufferFilledSize is less then or equal to the specified buffer offset, then nothing is drawn.
+The primitive type for DrawAuto is the current primitive topology set via
+<a href="#SetPrimitiveTopologyAPI">IASetPrimitiveTopology</a><a style="color: Gray"><small><sup>(8.1.2)</sup></small></a>, regardless of
+the geometry shader output topology used while the buffer is filled.</p>
+<p>Buffers may be bound to other IA input slots above zero for DrawAuto (only the IA bind flag is required on these slots), and these can be
+part of the Vertex Declaration as well.  Reading out of bounds on any Buffer above slot zero
+in DrawAuto invokes the default behavior for reading out of bounds (as with any other Draw* call).
+</p>
+<div style="BACKGROUND-COLOR: lightgrey"><pre>
+DrawAuto()
+</pre></div>
+<hr><!-- ********************************************************************** -->
+<h2 id="PrimitiveTopologies"></h2><A id="8.10 Primitive Topologies"></A>
+<H2>8.10 Primitive Topologies</H2>
+<P>
+The diagram below defines the vertex ordering for all of the primitive topologies that the IA
+can produce. The enumeration of primitive topologies is <a href="#PrimitiveTopologyEnum">here</a><a style="color: Gray"><small><sup>(8.1.2)</sup></small></a>.</P>
+<p>As an example, suppose the IA is asked to draw triangle lists with adjacency, and it is
+invoked with a vertex cont of 36 by a Draw() call.  From the diagram it should be apparent
+that a 36-vertex triangle list with adjacency will result in 6 completed primitives.</p>
+<DIV class=boxed style="background-color: lightblue">
+<p>An interesting property of all the topologies with adjacency (except line strips) is that they contain exactly double
+the number of vertices as the equivalent topology without adjacency.  Every other vertex represents an "adjacent" vertex.</p>
+</DIV>
+<P><IMG id="PrimTopologies" alt="" src="images/d3d11/D3D11_3_Topology1.png" ></P>
+<h2 id="PatchTopologies"></h2><A id="8.11 Patch Topologies"></A>
+<H2>8.11 Patch Topologies</H2>
+<p>Not shown in the previous diagram (but part of the same list) are 32 additional topologies which represent 1...<a href="#D3D11_IA_PATCH_MAX_CONTROL_POINT_COUNT" title="D3D11_IA_PATCH_MAX_CONTROL_POINT_COUNT"><font color=black style="text-decoration:none">32</font></a> control point patches, respectively.  These
+Patch topologies can be used with <a href="#Tessellator">Tessellation</a><a style="color: Gray"><small><sup>(11)</sup></small></a>.  Also, when Tessellation is <a href="#EnablingTessellation">disabled</a><a style="color: Gray"><small><sup>(11.8)</sup></small></a> (meaning no Hull Shader and no Domain Shader bound), they can be fed
+to the Geometry Shader and/or Stream Output, allowing patch data to be saved to memory, and allowing non-traditional primitive types to be fed to the GS
+(such as simulating cubes using 8 control point patches to represent 8 vertices).</p>
+<h2 id="Cut"></h2><A id="8.12 Generating Multiple Strips"></A>
+<H2>8.12 Generating Multiple Strips</H2>
+<p>In Indexed rendering of strip topologies, the maximum representable index value in the index format
+(i.e. <a href="#D3D11_32BIT_INDEX_STRIP_CUT_VALUE" title="D3D11_32BIT_INDEX_STRIP_CUT_VALUE"><font color=black style="text-decoration:none">0xffffffff</font></a> for 32-bit indices) means the strip defined up to the previous
+index is to be completed, and the next index is a new strip.  This special "cut" value is not required to be used,
+in which case a DrawIndexed*() command will simply draw one strip.  In IndexedInstanced rendering, there is an automatic "cut"
+after every instance.  Regardless of Instanced rendering or not, it is optional whether to make the last index the
+cut value, or omit the value; both result in the same behavior, except that the IndexCount[PerInstance] parameter to
+DrawIndexed[Instanced]() is different by 1.</p>
+<p>Even if the current Primitive Topology is not a strip, then the cut index value still takes effect, potentially
+resulting in an incomplete primitive (see next section).  Thus, handling of the cut is kept orthogonal to
+primitive topology, even though it is not useful for some of them.</p>
+<DIV class=boxed style="background-color: lightblue">
+<p>Note that providing a behavior for the cut value when used with a non-strip topology is a way of saying that
+the behavior is defined, allowing hardware to keep the cut behavior always enabled.  In practice though,
+using cut for a list topology is obviously not a "feature" that it would ever make sense for an
+application to author to.</p>
+</DIV>
+
+<h2 id="PartialPrimitives"></h2><A id="8.13 Partially Completed Primitives"></A>
+<H2>8.13 Partially Completed Primitives</H2>
+<p>Each Draw*() call starts a new Primitive Topology; there is no persistence of any topology produced by a previous Draw() call.
+Triangle strips don't continue across Draw() call boundaries.</p>
+
+<p>If a Draw*() call produces incomplete primitives (not enough vertices),
+either at the end of the Draw*() call, or anywhere in the middle (possible with the "cut" index), any incomplete primitives are silently
+discarded.  For example, suppose a Draw*() call is made with triangle list as the topology, and an
+vertex count of 5.  This case would result in a single triangle, and the last 2 vertices being silently discarded.  For another
+example showing handling of an incomplete primitive, see the diagram under the Geometry Shader Stage <a href="#GSInputs3">here</a><a style="color: Gray"><small><sup>(13.10)</sup></small></a>,
+depicting which primitives are instantiated given a triangle strip with adjacency that has a dangling vertex.
+</p>
+<h2 id="LeadingVertex"></h2><A id="8.14 Leading Vertex"></A>
+<H2>8.14 Leading Vertex</H2>
+<p>For the purpose of assigning constant vertex attributes to primitives, there must be
+a way to map a vertex to a primitive.  Let us identify the vertex in a primitive which supplies its per-primitive
+constant data as the "leading vertex".  A primitive topology can have multiple leading vertices, one for each primitive in
+the topology.  The leading vertex for an individual primitive in a topology is the first non-adjacent vertex in
+the primitive. For the triangle strip with adjacency above, the leading vertices are 0, 2, 4, 6, etc. For the line
+strip with adjacency, the leading vertices are 1, 2, 3 etc.</p>
+
+<p>Note that adjacent primitives have no leading vertex.  This means that there is no primitive data associated with
+adjacent primitives.  With the strip topologies, a given interior primitive has some adjacent
+primitives which are also interior to the topology, and so actually can have primitive data. However, as far as the
+Geometry Shader is concerned (it sees a single primitive and its neigboring primitives in an invocation), only the single interior
+primitive defining the Geometry Shader invocation can have Primitive Data, and adjacent primitives, whether they are
+interior to the strip or adjacent primitives on the strip, never come with Primitive Data. </p>
+<h2 id="Adjacency"></h2><A id="8.15 Adjacency"></A>
+<H2>8.15 Adjacency</H2>
+<p>The only place in the Pipeline where adjacency information is visible to the application is in the Geometry Shader.
+Each invocation of the Geometry Shader sees a single primitive: a point, line, or triangle,
+and some of these might include adjacent vertices. </p>
+
+<p>The inputs to the Geometry Shader are like a single primitive
+of any of the "list" primitive topologies (with or without adjacency) in the diagram above. When adjacency is available,
+the Geometry Shader will see the appropriate adjacent vertices along with the primitive's vertices.  So for
+example if the Geometry Shader is invoked with a triangle including adjacency (the source could have been a strip
+with adjacency), this would mean that data for 6 vertices would be available as input in the Geometry Shader:
+3 vertices for the triangle, and 3 for the adjacency. </p>
+
+<p>The data layout for adjacent vertices is identical to the standard vertices they accompany.  Note that Vertex Shaders
+are always run on all vertices, including adjacent vertices.  Note that adjacent vertices are typically also
+surface vertices some other primitive that will get drawn, so the Vertex Shader result cache can take advantage of this.</p>
+
+<p>When the IA is instructed to produce a primitive topology with adjacency for its output, all adjacent vertices must be specified.
+There is no concept of handling edges with no adjacent primitive.  The application must deal with this on their own, perhaps by providing
+a dummy vertex (possibly forming a degenerate triangle), or perhaps by flagging in one of the vertex attributes
+whether the vertex "exists" or not.  The application's Geometry Shader code will have to detect this situation, if desired,
+and deal with it manually. Implied in this is that there must be no culling of degenerate primitives until rasterizer setup,
+so that the Geometry Shader is guaranteed to see all geometry.</p>
+<p>Note that when Tessellation is enabled, topologies with adjacency cannot be used.  The Tessellator operates a patch at a time without
+hardware knowledge about adjacency (although shader code is free to encode it on its own).  The Tessellator's outputs are independent primitives,
+with no adjacency information.</p>
+<h2 id="VertexID"></h2><A id="8.16 VertexID"></A>
+<H2>8.16 VertexID</H2>
+<p>VertexID is a <a href="#D3D11_STANDARD_COMPONENT_BIT_COUNT" title="D3D11_STANDARD_COMPONENT_BIT_COUNT"><font color=black style="text-decoration:none">32</font></a>-bit unsigned integer scalar counter value coming out of Draw*() calls identifying to Shaders each vertex.  This value
+can be <a href="#inst_vDCL_SV">declared</a><a style="color: Gray"><small><sup>(22.3.11)</sup></small></a> for input by the Vertex Shader only.</p>
+<p>For Draw() and DrawInstanced(), VertexID starts at 0, and
+it increments for every vertex.  Across instances in DrawInstanced(), the count resets back to the start value.
+Should the <a href="#D3D11_STANDARD_COMPONENT_BIT_COUNT" title="D3D11_STANDARD_COMPONENT_BIT_COUNT"><font color=black style="text-decoration:none">32</font></a>-bit VertexID calculation overflow, it simply wraps.</p>
+<p>For DrawIndexed() and DrawIndexedInstanced(), VertexID represents the index value.</p>
+<p>The mere presence of VertexID in a Vertex Shaders' input declarations activates the feature (there is no other control outside the shader).
+If the application wishes to pass this data to later Pipeline stages, the application can do so by simply writing the value to a Shader output register
+like any other data.</p>
+<p>For Primitive Topologies with adjacency, such as a triangle strip w/adjacency, the "adjacent" vertices participate have
+a VertexID associated with them just like the "non-adjacent" vertices do, all generated uniformly (i.e. without regards to
+which vertices are adjacent and which are not in the topology).</p>
+<p>For more information, see the general discussion of System Generated Values <a href="#SystemGeneratedValues">here</a><a style="color: Gray"><small><sup>(4.4.4)</sup></small></a>, the reference for VertexID
+<a href="#generatedvalue_VERTEX_ID">here</a><a style="color: Gray"><small><sup>(23.1)</sup></small></a>, and the System Interpreted/Generated Value <a href="#inst_vDCL_SV">input</a><a style="color: Gray"><small><sup>(22.3.11)</sup></small></a> declaration for Shaders.</p>
+<h2 id="PrimitiveID"></h2><A id="8.17 PrimitiveID"></A>
+<H2>8.17 PrimitiveID</H2>
+
+<p>PrimitiveID is a <a href="#D3D11_STANDARD_COMPONENT_BIT_COUNT" title="D3D11_STANDARD_COMPONENT_BIT_COUNT"><font color=black style="text-decoration:none">32</font></a>-bit unsigned integer scalar counter value coming out of Draw*() calls identifying to Shaders each primitive.  This value can
+be <a href="#inst_vDCL_SV">declared</a><a style="color: Gray"><small><sup>(22.3.11)</sup></small></a> for input by either the Hull Shader, Domain Shader, Geometry Shader or Pixel Shader Stage.  For the GS and PS, if the GS is active the hardware
+PrimitiveID goes there and shader computed PrimitiveIDs go to the PS.</p>
+<p>PrimitiveID starts at 0 for the first primitive generated by a Draw*() call,
+and increments for each subsequent primitive.  When Draw*Instanced() is used, the PrimitiveID resets to its starting value whenever a new instance begins in the set of instances produced by the call. Should the
+<a href="#D3D11_STANDARD_COMPONENT_BIT_COUNT" title="D3D11_STANDARD_COMPONENT_BIT_COUNT"><font color=black style="text-decoration:none">32</font></a>-bit PrimitiveID calculation overflow, it simply wraps.
+</p>
+<p>The mere presence of PrimitiveID in a compatible Shader Stage's input declarations activates the feature (there is no other control outside the shader).
+In the Geometry Shader this is declared as the special register vPrim (to decouple the value from the other per-vertex inputs).
+If the application wishes to pass PrimitiveID to a later Pipeline stage, the application can do so by simply writing the value to a Shader output register
+like any other data.  The Pixel Shader does not have a separate input for PrimitiveID; it just goes into a component of a
+normal input register, with the requirement that the interpolation mode on the entire input register (which may contain other data as well in other components,
+is chosen as "constant".</p>
+
+<p>For <a href="#PrimitiveTopologies">Primitive Topologies</a><a style="color: Gray"><small><sup>(8.10)</sup></small></a> with adjacency, such as a triangle strip w/adjacency, the PrimitiveID is only maintained for the
+interior primitives in the topology (the non-adjacent primitives), just like the set of primitives in a triangle strip without
+adjacency.  No point in the Pipeline has a way of asking for an auto-generated PrimitiveID for adjacent primitives.</p>
+
+<p>For more information, see the general discussion of System Generated Values <a href="#SystemGeneratedValues">here</a><a style="color: Gray"><small><sup>(4.4.4)</sup></small></a>, the reference for PrimitiveID
+<a href="#generatedvalue_PRIMITIVE_ID">here</a><a style="color: Gray"><small><sup>(23.2)</sup></small></a>, and the System Interpreted/Generated Value <a href="#inst_vDCL_SV">input</a><a style="color: Gray"><small><sup>(22.3.11)</sup></small></a> and <a href="#inst_oDCL_SGV">
+output</a><a style="color: Gray"><small><sup>(22.3.33)</sup></small></a> declarations for Shaders.</p>
+
+<h2 id="InstanceID"></h2><A id="8.18 InstanceID"></A>
+<H2>8.18 InstanceID</H2>
+<p>InstanceID is a <a href="#D3D11_STANDARD_COMPONENT_BIT_COUNT" title="D3D11_STANDARD_COMPONENT_BIT_COUNT"><font color=black style="text-decoration:none">32</font></a>-bit unsigned integer scalar counter value coming out of Draw*() calls identifying to Shaders which instance is being drawn.
+This value can be <a href="#inst_vDCL_SV">declared</a><a style="color: Gray"><small><sup>(22.3.11)</sup></small></a> for input by the by the Vertex Shader only.</p>
+<p>InstanceID starts at 0 for the first instance of vertices generated by a Draw*() call.
+If the Draw is a Draw*Instanced() call, after each instance of vertices, the InstanceID increments by one.  If the Draw is not a Draw*Instanced() call,
+then InstanceID never changes. Should the <a href="#D3D11_STANDARD_COMPONENT_BIT_COUNT" title="D3D11_STANDARD_COMPONENT_BIT_COUNT"><font color=black style="text-decoration:none">32</font></a>-bit InstanceID calculation overflow, it simply wraps.</p>
+<p>The mere presence of InstanceID in the Vertex Shader's input declarations activates the feature (there is no other control outside the shader).
+If the application wishes to pass this data to later Pipeline stages, the application can do so by simply writing the value to a Shader output register
+like any other data.</p>
+<p>For more information, see the general discussion of System Generated Values <a href="#SystemGeneratedValues">here</a><a style="color: Gray"><small><sup>(4.4.4)</sup></small></a>, the reference for InstanceID
+<a href="#generatedvalue_INSTANCE_ID">here</a><a style="color: Gray"><small><sup>(23.3)</sup></small></a>, and the System Interpreted/Generated Value <a href="#inst_vDCL_SV">input</a><a style="color: Gray"><small><sup>(22.3.11)</sup></small></a> declaration for Shaders.</p>
+
+<hr><!-- ********************************************************************** -->
+<h2 id="IAMisc"></h2><A id="8.19 Misc. IA Issues"></A>
+<H2>8.19 Misc. IA Issues</H2>
+<hr><p><b>Section Contents</b><br><br>(<a href="#Chapter8Contents">back to chapter</a>)<br><br>
+<A href="#8.19.1 Input Assembler Arithmetic Precision">8.19.1 Input Assembler Arithmetic Precision</A><br>
+<A href="#8.19.2 Addressing Bounds">8.19.2 Addressing Bounds</A><br>
+<A href="#8.19.3 Buffer and Structure Offsets and Strides">8.19.3 Buffer and Structure Offsets and Strides</A><br>
+<A href="#8.19.4 Reusing Input Resources">8.19.4 Reusing Input Resources</A><br>
+<A href="#8.19.5 Fetching Data in the IA vs. Fetching Later (i.e. Multiple Ways to Do the Same Thing)">8.19.5 Fetching Data in the IA vs. Fetching Later (i.e. Multiple Ways to Do the Same Thing)</A><br>
+</DIR>
+</p>
+
+<hr><!-- ********************************************************************** -->
+
+<A id="8.19.1 Input Assembler Arithmetic Precision"></A>
+<H3>8.19.1 Input Assembler Arithmetic Precision</H3>
+<p>The Input Assembler performs <a href="#D3D11_IA_INTEGER_ARITHMETIC_BIT_COUNT" title="D3D11_IA_INTEGER_ARITHMETIC_BIT_COUNT"><font color=black style="text-decoration:none">32</font></a>-bit unsigned integer arithmetic, conforming to the IA addressing pseudocode shown
+in this spec.  In other words, should any calculation overflow <a href="#D3D11_IA_INTEGER_ARITHMETIC_BIT_COUNT" title="D3D11_IA_INTEGER_ARITHMETIC_BIT_COUNT"><font color=black style="text-decoration:none">32</font></a>-bits, it would wrap - and should
+that result happen to fall back into a valid range for the scenario, so be it.  Wherever input parameters are listed as signed integers (such as BaseVertexLocation in <a href="#DrawIndexedAPI">DrawIndexed()</a><a style="color: Gray"><small><sup>(8.5)</sup></small></a>) they are
+interpreted, unaltered, as unsigned <a href="#D3D11_IA_INTEGER_ARITHMETIC_BIT_COUNT" title="D3D11_IA_INTEGER_ARITHMETIC_BIT_COUNT"><font color=black style="text-decoration:none">32</font></a>-bit numbers, used in unsigned <a href="#D3D11_IA_INTEGER_ARITHMETIC_BIT_COUNT" title="D3D11_IA_INTEGER_ARITHMETIC_BIT_COUNT"><font color=black style="text-decoration:none">32</font></a>-bit
+addressing arithmetic, producing unsigned <a href="#D3D11_IA_INTEGER_ARITHMETIC_BIT_COUNT" title="D3D11_IA_INTEGER_ARITHMETIC_BIT_COUNT"><font color=black style="text-decoration:none">32</font></a>-bit results. </p>
+
+<A id="8.19.2 Addressing Bounds"></A>
+<H3>8.19.2 Addressing Bounds</H3>
+<p>An individual Draw*() call is limited to producing a finite number of vertices.  This limit includes any instancing that is occurring within
+the Draw*() call.  Independent of such a limit, there are also limits on how big various source data buffers can be.  All of these (large) numbers
+can be found within the <a href="#SystemLimits">table</a><a style="color: Gray"><small><sup>(21)</sup></small></a> in the Limits On Various System Resource section.  These numbers are expected to be
+reasonable for the foreseeable lifetime of D3D<a href="#D3D11_MAJOR_VERSION" title="D3D11_MAJOR_VERSION"><font color=black style="text-decoration:none">11</font></a>.<a href="#D3D11_MINOR_VERSION" title="D3D11_MINOR_VERSION"><font color=black style="text-decoration:none">3</font></a>.</p>
+<p>Any calculated address that would fall out of bounds for a Buffer being accessed results in out-of-bounds behavior being invoked, where
+the return is <a href="#D3D11_NONSAMPLE_FETCH_OUT_OF_RANGE_ACCESS_RESULT" title="D3D11_NONSAMPLE_FETCH_OUT_OF_RANGE_ACCESS_RESULT"><font color=black style="text-decoration:none">0</font></a> in all non-missing components of the format (defined in the Input Layout), and the
+default for missing components (see <a href="#DefaultsForMissingComponents">Defaults for Missing Components</a><a style="color: Gray"><small><sup>(19.1.3.3)</sup></small></a>).  This out-of-bounds
+behavior applies, for example, when an index refers to a vertex number that is outside of the bound vertex buffer.</p>
+<p>The minimum extent for the bounds is any initial offset applied on the Buffer (so "negative" indexing isn't a feature).</p>
+
+<A id="8.19.3 Buffer and Structure Offsets and Strides"></A>
+<H3>8.19.3 Buffer and Structure Offsets and Strides</H3>
+<p>See the <a href="#ElementAlignment">Element Alignment</a><a style="color: Gray"><small><sup>(4.4.6)</sup></small></a> section.</p>
+
+<A id="8.19.4 Reusing Input Resources"></A>
+<H3>8.19.4 Reusing Input Resources</H3>
+<p>It is perfectly legal to read any given memory Buffer in multiple places in the Pipeline, including the IA, simultaneously,
+even applying different interpretations to the data in the Buffer.  A single Buffer can even be set as input at multiple slots at
+a single stage such as the IA.</p>
+<p>For example, suppose an application has a Vertex Shader that requires 2 different sets of input texture coordinates.  One scenario could be to use 2 different input Buffers
+to provide the different texture coordinates to be fetched by the IA (or both texture coordinates could be interleaved in one Buffer).
+But an alternate, equally valid scenario is to reuse the same source data to supply both texture coordinates to what the Vertex Shader expects
+as two different sets.  This is simply a matter of binding the same input Buffer to two different input slots.</p>
+<p>Another way to achieve the same effect of reusing a single set of data is to bind the source texture coordinate Buffer to a single slot and
+provide a data declaration where the definition of 2 different texture coordinates overlaps (same structure offset).  Partial-overlapping of types
+in a data declaration is even permitted (even though it isn't interesting); the point is that D3D<a href="#D3D11_MAJOR_VERSION" title="D3D11_MAJOR_VERSION"><font color=black style="text-decoration:none">11</font></a>.<a href="#D3D11_MINOR_VERSION" title="D3D11_MINOR_VERSION"><font color=black style="text-decoration:none">3</font></a> doesn't care or bother to check.</p>
+<p>Similarly, the structure stride in a vertex declaration can be any non-negative value (up to a maximum of <a href="#D3D11_REQ_MULTI_ELEMENT_STRUCTURE_SIZE_IN_BYTES" title="D3D11_REQ_MULTI_ELEMENT_STRUCTURE_SIZE_IN_BYTES"><font color=black style="text-decoration:none">2048</font></a> Bytes, and conforming to <a href="#ElementAlignment">alignment</a><a style="color: Gray"><small><sup>(4.4.6)</sup></small></a> rules),
+without regards to whether it is large enough to support the fields defined for the structure.  Again, the point is that D3D<a href="#D3D11_MAJOR_VERSION" title="D3D11_MAJOR_VERSION"><font color=black style="text-decoration:none">11</font></a>.<a href="#D3D11_MINOR_VERSION" title="D3D11_MINOR_VERSION"><font color=black style="text-decoration:none">3</font></a> doesn't care
+or bother to check.  Debug tools can be provided to optionally enforce well-ordered, logical data layouts, however the arithmetic that underlying
+hardware uses to actually address data simply blindly follows the intent shown by the pseudocode for address-calculations for the <a href="#DrawingCommands">Draw*()</a><a style="color: Gray"><small><sup>(8.2)</sup></small></a> routines.</p>
+<p>It is legal to have a single Buffer containing both vertex data and index data, and thus bind the Buffer at both a  Vertex Buffer input slot and
+as an Index Buffer simultaneously.  One might store indices at the beginning of the Buffer and the vertex data being referred to elsewhere in the same Buffer.  D3D<a href="#D3D11_MAJOR_VERSION" title="D3D11_MAJOR_VERSION"><font color=black style="text-decoration:none">11</font></a>.<a href="#D3D11_MINOR_VERSION" title="D3D11_MINOR_VERSION"><font color=black style="text-decoration:none">3</font></a> doesn't care.</p>
+<p>As yet another, final (contrived) example, to drive the point home:  Suppose a Vertex Buffer is set as input to the IA to provide data for vertices going
+to the Vertex Shader (as usual).  Simultaneously, the same Vertex Buffer may be accessed directly by the Vertex Shader, if for some reason the Shader
+occasionally wanted to look at some of the input data for vertices other than itself.</p>
+<A id="8.19.5 Fetching Data in the IA vs. Fetching Later (i.e. Multiple Ways to Do the Same Thing)"></A>
+<H3>8.19.5 Fetching Data in the IA vs. Fetching Later (i.e. Multiple Ways to Do the Same Thing)</H3>
+<p>The highly flexible and programmable nature of the D3D<a href="#D3D11_MAJOR_VERSION" title="D3D11_MAJOR_VERSION"><font color=black style="text-decoration:none">11</font></a>.<a href="#D3D11_MINOR_VERSION" title="D3D11_MINOR_VERSION"><font color=black style="text-decoration:none">3</font></a> Pipeline leads to many situations where there are multiple ways to accomplish a single task.
+A particular example relevant to this section is that the fetching of vertex data performed by the IA can be identically performed by
+doing memory fetches from the Vertex Shader only given a VertexID as input.  There are nice properties from this, such as the fact that even though
+the amount of data the IA can pre-fetch for a single vertex is limited in size, memory fetches from shaders can allow much more unbounded amounts
+of vertex data to be fetched if necessary.  Memory fetches from shaders can also use much more complex addressing arithmetic than the common-case
+dedicated fixed-function arithmetic used by the IA.</p>
+<p>No guarantees or requirements are made by D3D<a href="#D3D11_MAJOR_VERSION" title="D3D11_MAJOR_VERSION"><font color=black style="text-decoration:none">11</font></a>.<a href="#D3D11_MINOR_VERSION" title="D3D11_MINOR_VERSION"><font color=black style="text-decoration:none">3</font></a>, however, as to the performance characteristics of using alternative mechanisms to perform a task that can
+be performed by an explicit feature intended for that task in the Pipeline.  As a general rule, whenever there is an explicit mechanism to perform a task in
+D3D<a href="#D3D11_MAJOR_VERSION" title="D3D11_MAJOR_VERSION"><font color=black style="text-decoration:none">11</font></a>.<a href="#D3D11_MINOR_VERSION" title="D3D11_MINOR_VERSION"><font color=black style="text-decoration:none">3</font></a>, IHVs and ISVs should assume that as much as possible, the dedicated functionality is the preferred route, at least when all of or most of the other parts
+of the graphics Pipeline are simultaneously active.</p>
+
+<A id="8.20 Input Assembler Data Conversion During Fetching"></A>
+<H2>8.20 Input Assembler Data Conversion During Fetching</H2>
+<p>When the Input Assembler reads Elements of data from Buffers, it gets converted to the appropriate
+<a href="#D3D11_STANDARD_COMPONENT_BIT_COUNT" title="D3D11_STANDARD_COMPONENT_BIT_COUNT"><font color=black style="text-decoration:none">32</font></a>-bit data type for the <a href="#Formats">Format</a><a style="color: Gray"><small><sup>(19.1)</sup></small></a> interpretation specified.  The
+conversion uses the the <a href="#DataConversion">Data Conversion</a><a style="color: Gray"><small><sup>(3.2)</sup></small></a> rules.  If the source data contains <a href="#D3D11_STANDARD_COMPONENT_BIT_COUNT" title="D3D11_STANDARD_COMPONENT_BIT_COUNT"><font color=black style="text-decoration:none">32</font></a>-bit
+per-component float, UINT or SINT data, it is read without modifying the bits at all (no conversion).</p>
+<p>If a Vertex Buffer or Index Buffer is read by the Input Assembler, but the slot being read has no Buffer bound,
+the result of the read is <a href="#D3D11_UNBOUND_MEMORY_ACCESS_RESULT" title="D3D11_UNBOUND_MEMORY_ACCESS_RESULT"><font color=black style="text-decoration:none">0</font></a> for all expected components.  Even though there is format information
+available via the input layout, defaults are not applied to missing channels for this case.</p>
+
+<h2 id="IAExample"></h2><A id="8.21 IA Example"></A>
+<H2>8.21 IA Example</H2>
+<p>The following example shows <a href="#DrawIndexedInstancedAPI">DrawIndexedInstanced()</a><a style="color: Gray"><small><sup>(8.6)</sup></small></a> being
+used to draw 3 instances of an indexed mesh.</p>
+<p>The example does not attempt to draw anything particularly interesting, but it does show most
+of the functionality of the IA being used at once, in complete detail.  Included is a depiction
+of the resulting workload for the rest of the Graphics Pipeline.</p>
+<p>As input, one Vertex Buffer supplies Vertex Data, another Vertex Buffer supplies Instance Data, and there is an Index Buffer.  The data layouts
+and configuration of all of these buffers is illustrated.  <a href="#VertexID">VertexID</a><a style="color: Gray"><small><sup>(8.16)</sup></small></a>,
+<a href="#PrimitiveID">PrimitiveID</a><a style="color: Gray"><small><sup>(8.17)</sup></small></a> and <a href="#InstanceID">InstanceID</a><a style="color: Gray"><small><sup>(8.18)</sup></small></a> are all shown
+as well, assuming Shaders in the pipeline requested them.
+The <a href="#PrimitiveTopologies">Primitive Topology</a><a style="color: Gray"><small><sup>(8.10)</sup></small></a> being rendered is triangle strip with adjacency.
+The Index Buffer has a <a href="#Cut">Cut</a><a style="color: Gray"><small><sup>(8.12)</sup></small></a> in it, so multiple strips are produced (per instance).</p>
+<p>Various states shown in boxes represent the API settings for Buffers and for the IA states described earlier in this IA spec.</p>
+<p>
+<IMG id="IAExampleDiagram1" alt="" src="images/d3d11/D3D11_3_IAExample1.png" ><br>
+<IMG id="IAExampleDiagram2" alt="" src="images/d3d11/D3D11_3_IAExample2.png" ><br>
+<IMG id="IAExampleDiagram3" alt="" src="images/d3d11/D3D11_3_IAExample3.png" >
+</p>
+
+<hr> <!-- ********************************************************************** -->
